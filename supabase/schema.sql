@@ -431,48 +431,51 @@ from (values
 join public.countries c on c.slug = v.country_slug
 on conflict (slug) do nothing;
 
+-- Deadlines below are computed relative to the date this script runs, so
+-- "Upcoming Deadlines" always has something to show regardless of when
+-- you seed the database.
 insert into public.programs (university_id, name, degree_level, field_of_study, duration_months, tuition_amount, tuition_currency, language, application_deadline, scholarship_available, description, requirements)
-select u.id, v.name, v.degree_level::degree_level, v.field_of_study, v.duration_months, v.tuition_amount, v.tuition_currency, v.language, v.application_deadline::date, v.scholarship_available, v.description, v.requirements
+select u.id, v.name, v.degree_level::degree_level, v.field_of_study, v.duration_months, v.tuition_amount, v.tuition_currency, v.language, (current_date + v.days_out)::date, v.scholarship_available, v.description, v.requirements
 from (values
-  ('politecnico-di-milano', 'MSc Computer Science', 'master', 'Computer Science', 24, 3900, 'EUR', 'English', '2024-05-15', true,
+  ('politecnico-di-milano', 'MSc Computer Science', 'master', 'Computer Science', 24, 3900, 'EUR', 'English', 21, true,
    'A research-focused program covering AI, distributed systems, and software engineering.',
    'Bachelor''s degree in CS or related field; IELTS 6.5+; strong programming background.'),
-  ('politecnico-di-milano', 'BSc Architecture', 'bachelor', 'Architecture', 36, 3900, 'EUR', 'Italian', '2024-08-01', false,
+  ('politecnico-di-milano', 'BSc Architecture', 'bachelor', 'Architecture', 36, 3900, 'EUR', 'Italian', 120, false,
    'A studio-based undergraduate program in architectural design.',
    'High school diploma; portfolio submission; Italian language proficiency B2.'),
-  ('sapienza-university', 'MSc Artificial Intelligence', 'master', 'Artificial Intelligence', 24, 2500, 'EUR', 'English', '2024-06-30', true,
+  ('sapienza-university', 'MSc Artificial Intelligence', 'master', 'Artificial Intelligence', 24, 2500, 'EUR', 'English', 45, true,
    'Advanced coursework in machine learning, robotics, and NLP.',
    'Bachelor''s in a quantitative field; IELTS 6.0+.'),
-  ('tu-munich', 'MSc Data Engineering', 'master', 'Data Science', 24, 0, 'EUR', 'English', '2024-05-31', true,
+  ('tu-munich', 'MSc Data Engineering', 'master', 'Data Science', 24, 0, 'EUR', 'English', 60, true,
    'A tuition-free program focused on large-scale data systems.',
    'Bachelor''s in CS/Engineering; GRE recommended; IELTS 6.5+.'),
-  ('oxford', 'MSc Computer Science', 'master', 'Computer Science', 12, 39000, 'GBP', 'English', '2024-01-10', false,
+  ('oxford', 'MSc Computer Science', 'master', 'Computer Science', 12, 39000, 'GBP', 'English', 5, false,
    'An intensive one-year master''s with a strong theoretical foundation.',
    'First-class undergraduate degree; IELTS 7.0+; references required.'),
-  ('ubc', 'MBA', 'master', 'Business Administration', 20, 58000, 'CAD', 'English', '2024-04-01', true,
+  ('ubc', 'MBA', 'master', 'Business Administration', 20, 58000, 'CAD', 'English', 90, true,
    'A globally-ranked MBA with a focus on sustainable business.',
    '2+ years work experience; GMAT/GRE; IELTS 7.0+.')
-) as v(university_slug, name, degree_level, field_of_study, duration_months, tuition_amount, tuition_currency, language, application_deadline, scholarship_available, description, requirements)
+) as v(university_slug, name, degree_level, field_of_study, duration_months, tuition_amount, tuition_currency, language, days_out, scholarship_available, description, requirements)
 join public.universities u on u.slug = v.university_slug;
 
 insert into public.scholarships (name, country_id, university_id, funding_type, amount_text, coverage, deadline, eligibility, source_url)
-select v.name, c.id, u.id, v.funding_type::funding_type, v.amount_text, v.coverage, v.deadline::date, v.eligibility, v.source_url
+select v.name, c.id, u.id, v.funding_type::funding_type, v.amount_text, v.coverage, (current_date + v.days_out)::date, v.eligibility, v.source_url
 from (values
-  ('DAAD Scholarship', 'germany', 'tu-munich', 'full', '€934 - €1,200/mo', 'Tuition, Travel, Health Insurance', '2024-12-15',
+  ('DAAD Scholarship', 'germany', 'tu-munich', 'full', '€934 - €1,200/mo', 'Tuition, Travel, Health Insurance', 14,
    'International master''s/PhD students in Germany with strong academic records.', 'https://www.daad.de'),
-  ('Eiffel Excellence Program', 'italy', null, 'partial', '€1,181 - €1,700/mo', 'Living allowance, Travel, Housing aid', '2025-01-10',
+  ('Eiffel Excellence Program', 'italy', null, 'partial', '€1,181 - €1,700/mo', 'Living allowance, Travel, Housing aid', 30,
    'Master''s/PhD students under 25/30 years old applying to partner institutions.', 'https://www.france-visas.gouv.fr')
-) as v(name, country_slug, university_slug, funding_type, amount_text, coverage, deadline, eligibility, source_url)
+) as v(name, country_slug, university_slug, funding_type, amount_text, coverage, days_out, eligibility, source_url)
 join public.countries c on c.slug = v.country_slug
 left join public.universities u on u.slug = v.university_slug;
 
 insert into public.deadlines (title, deadline_type, deadline_date, university_id, program_id)
-select v.title, v.deadline_type::deadline_type, v.deadline_date::date, u.id, p.id
+select v.title, v.deadline_type::deadline_type, (current_date + v.days_out)::date, u.id, p.id
 from (values
-  ('Oxford Winter Intake', 'application', '2024-01-10', 'oxford', 'MSc Computer Science'),
-  ('Politecnico di Milano — MSc CS', 'application', '2024-05-15', 'politecnico-di-milano', 'MSc Computer Science'),
-  ('UBC MBA Early Admission', 'application', '2024-04-01', 'ubc', 'MBA')
-) as v(title, deadline_type, deadline_date, university_slug, program_name)
+  ('Oxford Winter Intake', 'application', 5, 'oxford', 'MSc Computer Science'),
+  ('Politecnico di Milano — MSc CS', 'application', 21, 'politecnico-di-milano', 'MSc Computer Science'),
+  ('UBC MBA Early Admission', 'application', 90, 'ubc', 'MBA')
+) as v(title, deadline_type, days_out, university_slug, program_name)
 join public.universities u on u.slug = v.university_slug
 left join public.programs p on p.university_id = u.id and p.name = v.program_name;
 

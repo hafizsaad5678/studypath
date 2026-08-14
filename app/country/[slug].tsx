@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useSavedItems } from '@/hooks/useSavedItems';
 import { useCountry } from '@/hooks/useCountries';
 import { useUniversitiesByCountry } from '@/hooks/useUniversities';
 
@@ -38,7 +37,6 @@ export default function CountryDetailScreen() {
   const { data: universities, isLoading: universitiesLoading } = useUniversitiesByCountry(
     country?.id ?? ''
   );
-  const { isSaved, toggle } = useSavedItems();
 
   const STATS = country
     ? [
@@ -97,7 +95,7 @@ export default function CountryDetailScreen() {
               contentFit="cover"
             />
           ) : null}
-          <View className="absolute bottom-0 left-0 right-0 flex-row items-end justify-between px-margin-mobile py-stack-md">
+          <View className="absolute bottom-0 left-0 right-0 flex-row items-end px-margin-mobile py-stack-md">
             <View className="flex-1 flex-row items-center gap-3">
               <View className="h-16 w-16 items-center justify-center overflow-hidden rounded-xl border-2 border-surface-container-lowest bg-surface-container-lowest">
                 <Text className="text-[28px]">{country.flag_emoji ?? '🌍'}</Text>
@@ -110,18 +108,6 @@ export default function CountryDetailScreen() {
                 </View>
               </View>
             </View>
-            <Pressable
-              onPress={() => toggle('scholarship', country.id)}
-              className="flex-row items-center gap-1 rounded-lg bg-primary-container px-4 py-2">
-              <MaterialIcons
-                name={isSaved('scholarship', country.id) ? 'bookmark' : 'bookmark-border'}
-                size={16}
-                color="#00612e"
-              />
-              <Text className="text-[13px] font-semibold text-on-primary-container">
-                {isSaved('scholarship', country.id) ? 'Saved' : 'Save'}
-              </Text>
-            </Pressable>
           </View>
         </View>
 

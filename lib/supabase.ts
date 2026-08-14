@@ -12,11 +12,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// AsyncStorage's web backend touches `window`/`localStorage`, which don't
+// exist during Expo Router's Node SSR export pass. Fall back to a no-op
+// storage there so the client can still be constructed on the server.
+const isBrowser = typeof window !== 'undefined';
+const noopStorage = {
+  getItem: async () => null,
+  setItem: async () => {},
+  removeItem: async () => {},
+};
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
+    storage: isBrowser ? AsyncStorage : noopStorage,
+    autoRefreshToken: isBrowser,
+    persistSession: isBrowser,
     detectSessionInUrl: false,
   },
 });
