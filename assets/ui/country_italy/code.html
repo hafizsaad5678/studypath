@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Study in Italy - StudyPath</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-surface": "#191c1e",
+                      "surface-container-low": "#f2f4f6",
+                      "tertiary-container": "#007d55",
+                      "inverse-on-surface": "#eff1f3",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "surface-container": "#eceef0",
+                      "inverse-surface": "#2d3133",
+                      "secondary-fixed": "#dae2fd",
+                      "surface-variant": "#e0e3e5",
+                      "outline": "#737686",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-container-high": "#e6e8ea",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "background": "#f7f9fb",
+                      "surface": "#f7f9fb",
+                      "tertiary-fixed": "#6ffbbe",
+                      "surface-tint": "#0053db",
+                      "on-tertiary-container": "#bdffdb",
+                      "on-surface-variant": "#434655",
+                      "on-secondary-fixed": "#131b2e",
+                      "on-background": "#191c1e",
+                      "on-secondary-container": "#5c647a",
+                      "primary": "#004ac6",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#002113",
+                      "on-secondary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#565e74",
+                      "secondary-container": "#dae2fd",
+                      "primary-container": "#2563eb",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-primary-container": "#eeefff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "surface-bright": "#f7f9fb",
+                      "tertiary": "#006242",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#d8dadc",
+                      "primary-fixed": "#dbe1ff",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#00174b",
+                      "outline-variant": "#c3c6d7",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "margin-desktop": "40px",
+                      "unit": "4px",
+                      "margin-mobile": "16px",
+                      "stack-lg": "32px",
+                      "container-max": "1280px",
+                      "stack-md": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col md:flex-row pb-16 md:pb-0">
+<!-- Navigation Drawer (Desktop) -->
+<nav class="hidden lg:flex flex-col h-screen py-stack-lg px-stack-md bg-surface-container w-[240px] left-0 border-r border-outline-variant fixed top-0 z-50">
+<div class="flex items-center gap-3 mb-stack-lg">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<span class="text-headline-lg font-headline-lg text-primary">StudyPath</span>
+</div>
+<div class="flex-1 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">description</span>
+                Applications
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-bold text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">explore</span>
+                Explore
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A small, high-quality circular avatar portrait of a professional academic advisor in a well-lit office environment, smiling warmly, corporate minimal style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2ZDkE0II2EL6tEfKwOZqqel7wkqm3sF6LVL12eGGl79YAruLWP9_TLzheIwxGci1O0-EjY0U4MFD7YElrDj0wI7fA0h7x9M278YYnTqctwy8R7QDZX6JEzK9O0BdXnDIP8RrcPBKqpwRoFsrVM-AeK3-J0-mvdWW2aJzRGvoh09FIK9aWo5maaBKR0UNq5Z34L-YLFNpjeJHjNrfvdjjtjOP1uTaMiU4v0EjKSY2yocT0JqUsv23WdA"/>
+<div>
+<p class="text-label-md font-label-md text-on-surface">Admin Panel</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Manage Programs</p>
+</div>
+</div>
+</nav>
+<!-- Top App Bar (Mobile) -->
+<header class="flex justify-between items-center px-margin-mobile h-16 w-full z-50 bg-surface-container-lowest border-b border-outline-variant md:hidden fixed top-0">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="text-headline-md font-headline-md font-bold text-primary">StudyPath</span>
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 lg:ml-[240px] mt-16 md:mt-0 overflow-y-auto">
+<!-- Hero Section -->
+<section class="relative w-full h-[300px] md:h-[400px] bg-surface-container-high border-b border-outline-variant flex items-end">
+<div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-overlay" data-alt="A stunning, wide-angle architectural photograph of a historic Italian university campus at golden hour, featuring classic columns and warm sunlight casting soft shadows, minimal modern lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVFIUzlsRNhL7VYpgTCCM1FemUgGiPEn3GAFX7i7VC-469LbuMAGiOcBiM2I7zTptQBEIWGN92G6iyFOVGeNN-Vu3rS8oy7nJo_rAoG8kfgbfOLrBUlj9PWOqueicfcokz8KLiuwgWx2afRpVAp7mGr51KFtWjwZIjK-giX2JrQ6BtvwzJO5e9wGMhJUqas16cMZ9_kmbEO9viNVpSYjKOjgxepEtSqqcVKFImD4cpjM1o5oW4N0cMqQ')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+<div class="relative z-10 p-margin-mobile md:p-margin-desktop w-full max-w-container-max mx-auto flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 border-surface-container-lowest shadow-sm flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="The official flag of Italy, rendered flat and clean, filling the frame perfectly without any distortion, high-resolution vector style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRHhUNtT7ZHjqjxL7LaQ8-agEYGRrt4cXQUi3m7JMc32U0n78A3uUb6RSMaB1TG-p5WcvrI8wgY5NGGNZw0hEVnpzBOg5kR7mzLbS7vFSWbhFturhMMj0sDNCmqDFT4vgFy9mW5Rn59UDAauXxb07w78fvklDgzuTUqQK8PXKjbuNyPZ9P1Q0kDZ0YdQpFQBCzP_hQo3LI7VLG62tisWSJWlL18sKk8bS7agpGUpPOcvjCSHuD5JJ02g"/>
+</div>
+<div>
+<h1 class="text-display font-display text-on-surface mb-1 md:text-4xl text-3xl">Study in Italy</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span> Southern Europe
+                        </p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-lg font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-2 focus:ring-2 focus:ring-offset-2 focus:ring-primary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">bookmark</span> Save
+                    </button>
+</div>
+</div>
+</section>
+<div class="max-w-container-max mx-auto p-margin-mobile md:p-margin-desktop space-y-stack-lg">
+<!-- Contextual Tabs -->
+<div class="border-b border-outline-variant">
+<nav class="flex space-x-8 overflow-x-auto no-scrollbar">
+<a class="border-b-2 border-primary text-primary py-4 px-1 text-label-md font-label-md font-bold whitespace-nowrap" href="#">Overview</a>
+<a class="border-b-2 border-transparent text-on-surface-variant hover:text-on-surface py-4 px-1 text-label-md font-label-md whitespace-nowrap transition-colors" href="#">Universities</a>
+<a class="border-b-2 border-transparent text-on-surface-variant hover:text-on-surface py-4 px-1 text-label-md font-label-md whitespace-nowrap transition-colors" href="#">Scholarships</a>
+<a class="border-b-2 border-transparent text-on-surface-variant hover:text-on-surface py-4 px-1 text-label-md font-label-md whitespace-nowrap transition-colors" href="#">Deadlines</a>
+</nav>
+</div>
+<!-- Bento Grid Overview -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md flex flex-col justify-between h-full">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-secondary-container text-on-secondary-container rounded-lg">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<h3 class="text-label-md font-label-md text-on-surface-variant">Avg. Tuition</h3>
+</div>
+<div>
+<p class="text-headline-lg font-headline-lg text-on-surface">€0 - 3k<span class="text-body-sm font-body-sm text-on-surface-variant"> / year</span></p>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Highly subsidized public universities</p>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md flex flex-col justify-between h-full">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-tertiary-container text-on-tertiary-container rounded-lg">
+<span class="material-symbols-outlined">home</span>
+</div>
+<h3 class="text-label-md font-label-md text-on-surface-variant">Living Cost</h3>
+</div>
+<div>
+<p class="text-headline-lg font-headline-lg text-on-surface">€700 - 1.2k<span class="text-body-sm font-body-sm text-on-surface-variant"> / mo</span></p>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Varies by city (Milan vs. South)</p>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md flex flex-col justify-between h-full">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<h3 class="text-label-md font-label-md text-on-surface-variant">Universities</h3>
+</div>
+<div>
+<p class="text-headline-lg font-headline-lg text-on-surface">90+</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Recognized higher education institutions</p>
+</div>
+</div>
+</section>
+<!-- Popular Universities Section -->
+<section class="mt-stack-lg">
+<div class="flex justify-between items-center mb-stack-md">
+<h2 class="text-headline-md font-headline-md text-on-surface">Popular Universities</h2>
+<a class="text-primary text-label-md font-label-md hover:underline flex items-center gap-1" href="#">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Uni Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:bg-surface-container-low transition-colors group flex flex-col md:flex-row h-full">
+<div class="md:w-1/3 h-48 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="A modern architectural shot of Politecnico di Milano campus, showing structural details and green spaces, clear blue sky, highly detailed and bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCypJzFHB72KyZW6uP-4qATpZI_zhiGsHf_5Xw8IPO8DPr3gGv8U9YM0QSgDgFeYASPQuKGCIjMQQLA8aE2-Nt2YNJb3DIRszjDeA-JkZxujIMmLfaM-LCyUrnXa0_2QXePxMqsEd6U-w6no89nPCIl6EQXFhg99ffnfDrd2vGTl_kbhGxJCTZJxveyRo37qIxjGFhaq2eSPrxTtbJCEAXOXHpbmFfVz7kEJDXwNJEIaqjjQgLp1FvHOQ"/>
+</div>
+<div class="p-stack-md md:w-2/3 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-headline-sm font-headline-md text-on-surface font-semibold group-hover:text-primary transition-colors">Politecnico di Milano</h3>
+<span class="bg-surface-variant text-on-surface-variant text-xs px-2 py-1 rounded-md font-label-sm">Public</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Milan, Lombardy</p>
+</div>
+<div class="flex gap-2 flex-wrap">
+<span class="border border-outline-variant text-on-surface-variant px-2 py-1 rounded-md text-[10px] font-label-sm">Engineering</span>
+<span class="border border-outline-variant text-on-surface-variant px-2 py-1 rounded-md text-[10px] font-label-sm">Architecture</span>
+</div>
+</div>
+</div>
+<!-- Uni Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:bg-surface-container-low transition-colors group flex flex-col md:flex-row h-full">
+<div class="md:w-1/3 h-48 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="A historic view of the University of Bologna's ancient cloisters, featuring terracotta brickwork and arches, bathed in warm sunlight, majestic academic setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC65rCxBMFcHmkHAE2m2G5TF5u6GjVT-1ESY8ZP4OjrsVvMUGJ9O2aDGFF45XNRzKCIDVCGZEaG2oeREXP7YYUIsfMsbq8R077dL6ayOK6ONTieJu7S5QPDzWI9aJM9icDtWPUhUjAG3oTVBpVcPlUBd8y9UmgkJ-I4eIwDzzId3C9wCpoJ5q6Ma-73ZyBZnw83YTEgbtWX17UL5P4zubwg27MI5qQUyRg7VJxbD4kR6S2JG9ygsbg3wA"/>
+</div>
+<div class="p-stack-md md:w-2/3 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-headline-sm font-headline-md text-on-surface font-semibold group-hover:text-primary transition-colors">University of Bologna</h3>
+<span class="bg-surface-variant text-on-surface-variant text-xs px-2 py-1 rounded-md font-label-sm">Public</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Bologna, Emilia-Romagna</p>
+</div>
+<div class="flex gap-2 flex-wrap">
+<span class="border border-outline-variant text-on-surface-variant px-2 py-1 rounded-md text-[10px] font-label-sm">Humanities</span>
+<span class="border border-outline-variant text-on-surface-variant px-2 py-1 rounded-md text-[10px] font-label-sm">Law</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Admission Timeline -->
+<section class="mt-stack-lg bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md md:p-stack-lg">
+<h2 class="text-headline-md font-headline-md text-on-surface mb-stack-md">Admission Intakes (General)</h2>
+<div class="relative pl-6 border-l-2 border-surface-variant space-y-8">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-surface-container-lowest"></div>
+<div class="mb-1">
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">September / October Intake (Main)</span>
+</div>
+<h4 class="text-body-lg font-body-lg font-semibold text-on-surface mb-2">Application Window: Dec - May</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">The primary intake for almost all Bachelor's and Master's programs. Pre-enrollment via Universitaly is required for non-EU students.</p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface-variant ring-4 ring-surface-container-lowest"></div>
+<div class="mb-1">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">February / March Intake (Secondary)</span>
+</div>
+<h4 class="text-body-lg font-body-lg font-semibold text-on-surface mb-2">Application Window: Jul - Oct</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Available for select Master's programs and a limited number of Bachelor's degrees. Check specific university offerings.</p>
+</div>
+</div>
+</section>
+<!-- Meta Footer -->
+<div class="pt-stack-md border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-body-sm font-body-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">verified</span> Last verified: 14 Aug 2026
+                </p>
+<a class="text-primary text-label-md font-label-md hover:underline flex items-center gap-1" href="#">
+                    Official Ministry of Education Site <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 pb-safe px-2 bg-surface-container-lowest border-t border-outline-variant md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-sm font-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-label-sm font-label-sm mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-label-sm font-label-sm mt-1">Scholarships</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">event_upcoming</span>
+<span class="text-label-sm font-label-sm mt-1">Deadlines</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

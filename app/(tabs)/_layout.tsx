@@ -1,18 +1,31 @@
-import { Tabs } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator color="#75ff9e" />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return <Redirect href="/(auth)/get-started" />;
+  }
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#75ff9e',
+        tabBarInactiveTintColor: '#bacbb9',
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
@@ -20,14 +33,34 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="explore" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="scholarships"
+        options={{
+          title: 'Scholarships',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="payments" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="deadlines"
+        options={{
+          title: 'Deadlines',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="event-available" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Programs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary-fixed": "#00210b",
+                "background": "#131313",
+                "on-surface": "#e2e2e2",
+                "on-secondary-fixed-variant": "#454747",
+                "tertiary-fixed": "#e4e2e4",
+                "border-subtle": "#2c2c2e",
+                "on-tertiary-fixed": "#1b1b1d",
+                "surface-dim": "#131313",
+                "surface-card": "#1c1c1e",
+                "outline": "#859585",
+                "surface-container-high": "#2a2a2a",
+                "primary-fixed-dim": "#00e475",
+                "error": "#ffb4ab",
+                "surface-container-lowest": "#0e0e0e",
+                "primary": "#75ff9e",
+                "on-tertiary-fixed-variant": "#474649",
+                "surface-container-highest": "#353535",
+                "primary-fixed": "#62ff96",
+                "inverse-surface": "#e2e2e2",
+                "outline-variant": "#3b4a3d",
+                "tertiary": "#e7e4e6",
+                "on-surface-variant": "#bacbb9",
+                "surface-variant": "#353535",
+                "neon-green": "#00e676",
+                "inverse-on-surface": "#303030",
+                "text-secondary": "#a1a1aa",
+                "secondary-fixed-dim": "#c6c6c7",
+                "tertiary-fixed-dim": "#c8c6c8",
+                "on-secondary": "#2f3131",
+                "error-container": "#93000a",
+                "on-secondary-fixed": "#1a1c1c",
+                "on-primary-fixed-variant": "#005226",
+                "on-error": "#690005",
+                "surface-container-low": "#1b1b1b",
+                "secondary-container": "#454747",
+                "on-error-container": "#ffdad6",
+                "surface-tint": "#00e475",
+                "inverse-primary": "#006d35",
+                "surface": "#131313",
+                "tertiary-container": "#cac8ca",
+                "on-primary": "#003918",
+                "on-primary-container": "#00612e",
+                "primary-container": "#00e676",
+                "on-tertiary": "#303032",
+                "secondary-fixed": "#e2e2e2",
+                "on-tertiary-container": "#545356",
+                "text-primary": "#ffffff",
+                "surface-bright": "#393939",
+                "on-background": "#e2e2e2",
+                "surface-container": "#1f1f1f",
+                "surface-input": "#2c2c2e",
+                "on-secondary-container": "#b4b5b5",
+                "secondary": "#c6c6c7"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-md": "16px",
+                "margin-mobile": "16px",
+                "margin-desktop": "40px",
+                "gutter": "24px",
+                "card-padding": "24px",
+                "unit": "4px"
+        },
+        "fontFamily": {
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "display": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-dim border-b border-outline-variant dark:border-border-subtle flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 w-full z-50 sticky top-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-green dark:text-neon-green">school</span>
+<span class="text-headline-md font-headline-md font-bold text-text-primary dark:text-text-primary">StudyPath</span>
+</div>
+<div>
+<span class="material-symbols-outlined text-text-secondary dark:text-text-secondary hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full cursor-pointer">notifications</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- NavigationDrawer (Hidden on Mobile) -->
+<nav class="hidden lg:flex flex-col h-full py-[32px] px-stack-md bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-border-subtle w-[240px] left-0 shrink-0">
+<div class="flex items-center gap-3 mb-8 px-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, professional portrait photograph of an admin user in a corporate setting. The lighting is soft and flattering, suitable for a light-mode dashboard avatar. The background is a clean, minimal white or light grey, ensuring the subject stands out. The image conveys authority and approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArJEKJmiLQ9flJ5RL2m6Ks7prC5iIm0MWeks40pf4TKM6mg4pYwsAr34P_KHph0AU4J2-ZVzrOjTPpFVgtpDvH8cH1FJgdqVmz1SitCwUIojAOCXEJS20E6fcIY1wJzoBwIfONXPqaHx0pNFpUgBngUs7i0W1I8blTMgwXqu8TcgYTrIfcyXeXo08hBaKttCIy0x-w7zUHKdu9CbzUF7Djzbr18bMOQ88EPygRNXUGKnTnDBicqOAaig"/>
+<div>
+<h3 class="text-label-md font-label-md text-text-primary">Admin Panel</h3>
+<p class="text-body-sm font-body-sm text-text-secondary">Manage Programs</p>
+</div>
+</div>
+<ul class="flex flex-col gap-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary dark:text-text-secondary hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary dark:text-text-secondary hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-label-md font-label-md">Applications</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary dark:text-text-secondary hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="text-label-md font-label-md">Inquiries</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary dark:text-text-secondary hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto pb-24 lg:pb-8">
+<div class="max-w-[1000px] mx-auto px-margin-mobile md:px-margin-desktop py-[32px]">
+<!-- Search & Filters Header -->
+<div class="sticky top-0 bg-background z-40 pb-4 pt-2 -mt-2">
+<div class="relative w-full mb-4">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
+<input class="w-full pl-12 pr-4 py-4 rounded-xl border border-border-subtle bg-surface-input text-body-md font-body-md focus:border-neon-green focus:ring-1 focus:ring-neon-green outline-none shadow-sm transition-all text-text-primary placeholder:text-text-secondary" placeholder="Search universities, programs, or keywords (Cmd + K)" type="text"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-container-high hover:bg-surface-variant text-text-primary p-2 rounded-lg transition-colors lg:hidden">
+<span class="material-symbols-outlined text-sm">tune</span>
+</button>
+</div>
+<div class="flex items-center justify-between gap-4">
+<div class="flex overflow-x-auto hide-scrollbar gap-2 pb-2">
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-border-subtle bg-surface-card text-label-md font-label-md text-text-primary hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                                Country <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-border-subtle bg-surface-card text-label-md font-label-md text-text-primary hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                                Degree <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-border-subtle bg-surface-card text-label-md font-label-md text-text-primary hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                                Field <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-border-subtle bg-surface-card text-label-md font-label-md text-text-primary hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                                Tuition <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<div class="hidden lg:flex items-center gap-2">
+<span class="text-body-sm font-body-sm text-text-secondary">Sort by:</span>
+<select class="bg-transparent border-none text-label-md font-label-md text-text-primary focus:ring-0 cursor-pointer pr-8">
+<option>Relevance</option>
+<option>Deadline</option>
+<option>Tuition (Low to High)</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Results Info -->
+<div class="flex justify-between items-center mb-6 mt-2">
+<h2 class="text-headline-md font-headline-md md:font-headline-lg md:text-headline-lg text-text-primary">240 Programs Found</h2>
+</div>
+<!-- Results Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-card border border-border-subtle rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-surface-container-high text-neon-green text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Matches Profile
+                        </div>
+<div class="flex items-start gap-4 mb-4">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center shrink-0 border border-border-subtle">
+<img class="w-12 h-12 object-contain" data-alt="A clean, minimalist logo for a technical university. The logo features sharp geometric shapes in deep blue and slate grey, set against a pure white background. The design is modern, professional, and suitable for a high-end academic application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGrgjg8iM9g_EXvyoYGyvMirxzZiwbQMjm0Y8O7lG6taKFGj1cuJcpU92dCMTC4t6M_8IJtVuCWNAwEkou7x2zONQmYqxEhUr_RvYcrSE_AHvxpcnzeW2du2ToDYXVRAblxWy80l5SSf5N_jbH8_aNA4s4G4O0ZamJ6xDVhQZh_H8xg2j3Fzpo1GtDxEnCv3CszL4jlf0kkFBLSSLQS0KQZEy8Fta5XPhOBd_GEmW3fV78jAAiXIUuUg"/>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-text-primary group-hover:text-neon-green transition-colors line-clamp-2">MSc Data Science &amp; Artificial Intelligence</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">Technical University of Munich • Germany</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-auto pt-4 border-t border-border-subtle">
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Tuition</p>
+<p class="text-body-md font-body-md font-medium text-text-primary">€0 / yr</p>
+</div>
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Deadline</p>
+<p class="text-body-md font-body-md font-medium text-error">May 31, 2024</p>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2 items-center justify-between w-full">
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-neon-green/10 text-neon-green text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">workspace_premium</span> Scholarship Available
+                            </span>
+<span class="inline-flex items-center gap-1 bg-surface-container text-text-secondary text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">language</span> English Taught
+                            </span>
+</div>
+<button class="bg-neon-green text-on-primary-fixed text-label-sm font-label-sm px-4 py-2 rounded-lg font-semibold hover:bg-primary-container transition-colors ml-auto">View Details</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-card border border-border-subtle rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer group flex flex-col h-full relative overflow-hidden">
+<div class="flex items-start gap-4 mb-4">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center shrink-0 border border-border-subtle">
+<img class="w-12 h-12 object-contain" data-alt="A sophisticated university emblem featuring a stylized shield and open book design. The colors are muted crimson and navy blue on a crisp white background. The logo conveys academic tradition mixed with modern educational practices, fitting for a corporate-style search interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Za6dHA_z5nBSi1cxCYz9N2dMXiksyK_Sojdxvc-jvKRfvfZyQw--C1c_clZQ2cTjIXa0CJtjdxOL0Wt2jjktmQSMqoj1wWUt9Gs5W2FTawDXHcjD6wzwJUnu4lRYyjL8-4iUvGmq4QYyvDT7t-JRm5RHip3zZFUpbDtu3oVzNoy6FPRHfNE7tLTU3GTUN438OHRxe4hmb8SL4-n8_tKQMYQWdxzuzDZhB9ITGPffEsJ-v8kMAZ_5Sg"/>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-text-primary group-hover:text-neon-green transition-colors line-clamp-2">Master in Machine Learning</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">KTH Royal Institute of Technology • Sweden</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-auto pt-4 border-t border-border-subtle">
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Tuition</p>
+<p class="text-body-md font-body-md font-medium text-text-primary">€14,500 / yr</p>
+</div>
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Deadline</p>
+<p class="text-body-md font-body-md font-medium text-text-primary">Jan 15, 2024</p>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2 items-center justify-between w-full">
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-surface-container text-text-secondary text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">language</span> English Taught
+                            </span>
+<span class="inline-flex items-center gap-1 bg-surface-container text-text-secondary text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 2 Years
+                            </span>
+</div>
+<button class="bg-neon-green text-on-primary-fixed text-label-sm font-label-sm px-4 py-2 rounded-lg font-semibold hover:bg-primary-container transition-colors ml-auto">View Details</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-card border border-border-subtle rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-surface-container-high text-neon-green text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Matches Profile
+                        </div>
+<div class="flex items-start gap-4 mb-4">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center shrink-0 border border-border-subtle">
+<img class="w-12 h-12 object-contain" data-alt="A modern, abstract academic logo consisting of interwoven circular lines representing global connectivity and data. The color palette utilizes vibrant primary blue and stark white. The image is designed to sit cleanly within a light-mode card component." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDObzU4WxJvFgKL03BwekymphkH3ZwXDYPeoLS0GykcODKTcAKupAulZDxAUSTf3LycWZ8QGf225RTlZ6USAy3CC4cpPZ7_5IBAxvl9GRHSKw1fZXoQLIXoT9c7TQ4zdyDu_RBUnV3aT92OK5ubigHj4CuZm1PwHTZqcklInXFGntjUlk9atHxWkV-fMgJju6-7bMu2qqEluUrjr-djls6pH1qTyBWqtUYg5wCw7FndqaAIthqOZip_CQ"/>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-text-primary group-hover:text-neon-green transition-colors line-clamp-2">MSc Applied Data Analytics</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">University of Amsterdam • Netherlands</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-auto pt-4 border-t border-border-subtle">
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Tuition</p>
+<p class="text-body-md font-body-md font-medium text-text-primary">€2,314 / yr</p>
+</div>
+<div>
+<p class="text-[12px] text-text-secondary uppercase tracking-wider font-semibold">Deadline</p>
+<p class="text-body-md font-body-md font-medium text-text-primary">Apr 01, 2024</p>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2 items-center justify-between w-full">
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-neon-green/10 text-neon-green text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">workspace_premium</span> Partial Funding
+                            </span>
+<span class="inline-flex items-center gap-1 bg-surface-container text-text-secondary text-label-sm font-label-sm px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 1 Year
+                            </span>
+</div>
+<button class="bg-neon-green text-on-primary-fixed text-label-sm font-label-sm px-4 py-2 rounded-lg font-semibold hover:bg-primary-container transition-colors ml-auto">View Details</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-surface-dim border-t border-border-subtle fixed bottom-0 w-full z-50 flex justify-around items-center h-16 pb-safe px-2 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-text-secondary dark:text-text-secondary hover:text-neon-green w-16" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-surface-container-high text-neon-green rounded-full px-4 py-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined filled-icon">explore</span>
+<span class="text-[10px] font-medium mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-text-secondary dark:text-text-secondary hover:text-neon-green w-16" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-[10px] font-medium mt-1">Scholarships</span>
+</a>
+<a class="flex flex-col items-center justify-center text-text-secondary dark:text-text-secondary hover:text-neon-green w-16" href="#">
+<span class="material-symbols-outlined">event_upcoming</span>
+<span class="text-[10px] font-medium mt-1">Deadlines</span>
+</a>
+<a class="flex flex-col items-center justify-center text-text-secondary dark:text-text-secondary hover:text-neon-green w-16" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
