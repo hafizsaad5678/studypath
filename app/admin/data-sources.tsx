@@ -1,7 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useScrapingJobStats, useScrapingJobs } from '@/hooks/useDataSources';
+import type { ScrapingJobWithSource } from '@/types/database';
 
 type OverviewStat = {
   label: string;
@@ -13,86 +16,7 @@ type OverviewStat = {
   badgeColor: string;
 };
 
-const OVERVIEW: OverviewStat[] = [
-  {
-    label: 'Total Records Synced',
-    value: '14,205',
-    note: '+12% this week',
-    icon: 'storage',
-    noteColor: 'text-tertiary',
-    badgeBg: '#454747',
-    badgeColor: '#b4b5b5',
-  },
-  {
-    label: 'Active Jobs',
-    value: '2',
-    note: 'Running now',
-    icon: 'sync',
-    noteColor: 'text-primary',
-    badgeBg: 'rgba(37,99,235,0.2)',
-    badgeColor: '#00e676',
-  },
-  {
-    label: 'Error Rate',
-    value: '0.8%',
-    note: '3 failed jobs',
-    icon: 'error',
-    noteColor: 'text-error',
-    badgeBg: '#93000a',
-    badgeColor: '#ffdad6',
-  },
-];
-
 type JobStatus = 'running' | 'completed' | 'error';
-
-type Job = {
-  id: string;
-  source: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  when: string;
-  schedule: string;
-  status: JobStatus;
-  records: string;
-};
-
-const JOBS: Job[] = [
-  {
-    id: 'JOB-4992',
-    source: 'DAAD Full Sync',
-    icon: 'public',
-    when: '10 mins ago',
-    schedule: 'Manual trigger',
-    status: 'running',
-    records: '~4,500',
-  },
-  {
-    id: 'JOB-4991',
-    source: 'Uni-Assist Deadlines',
-    icon: 'account-balance',
-    when: '2 hours ago',
-    schedule: 'Scheduled: Daily',
-    status: 'completed',
-    records: '1,204 updated',
-  },
-  {
-    id: 'JOB-4990',
-    source: 'StudyInGermany Master',
-    icon: 'dataset',
-    when: 'Yesterday, 14:30',
-    schedule: 'Scheduled: Weekly',
-    status: 'error',
-    records: '-',
-  },
-  {
-    id: 'JOB-4989',
-    source: 'DAAD Scholarships',
-    icon: 'payment',
-    when: 'Yesterday, 02:00',
-    schedule: 'Scheduled: Daily',
-    status: 'completed',
-    records: '345 new',
-  },
-];
 
 const STATUS_META: Record<
   JobStatus,
@@ -102,6 +26,34 @@ const STATUS_META: Record<
   completed: { label: 'Completed', icon: 'check-circle', bg: '#0f2e1d', color: '#00e676' },
   error: { label: 'Error', icon: 'error', bg: '#93000a', color: '#ffdad6' },
 };
+
+function jobStatusToVisual(status: ScrapingJobWithSource['status']): JobStatus {
+  if (status === 'failed') return 'error';
+  if (status === 'running') return 'running';
+  if (status === 'completed') return 'completed';
+  return 'running';
+}
+
+function formatWhen(timestamp: string | null): string {
+  if (!timestamp) return '-';
+  const diffMs = Date.now() - new Date(timestamp).getTime();
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+function formatRecords(job: ScrapingJobWithSource): string {
+  if (job.status === 'failed') return '-';
+  if (job.status === 'running' || job.status === 'queued') {
+    return job.records_found ? `~${job.records_found}` : '-';
+  }
+  const total = job.records_created + job.records_updated;
+  return total > 0 ? `${total} updated` : '-';
+}
 
 function OverviewCard({ stat }: { stat: OverviewStat }) {
   return (
@@ -122,16 +74,19 @@ function OverviewCard({ stat }: { stat: OverviewStat }) {
   );
 }
 
-function JobRow({ job }: { job: Job }) {
-  const meta = STATUS_META[job.status];
+function JobRow({ job }: { job: ScrapingJobWithSource }) {
+  const visualStatus = jobStatusToVisual(job.status);
+  const meta = STATUS_META[visualStatus];
   return (
     <View className="gap-3 border-b border-outline-variant p-4">
       <View className="flex-row items-center gap-stack-sm">
         <View className="h-8 w-8 items-center justify-center rounded border border-outline-variant bg-surface-container">
-          <MaterialIcons name={job.icon} size={18} color="#bacbb9" />
+          <MaterialIcons name="public" size={18} color="#bacbb9" />
         </View>
         <View className="flex-1">
-          <Text className="text-[14px] font-medium text-on-surface">{job.source}</Text>
+          <Text className="text-[14px] font-medium text-on-surface">
+            {job.data_source?.name ?? job.job_type}
+          </Text>
           <Text className="text-[12px] text-outline">{job.id}</Text>
         </View>
         <View
@@ -145,20 +100,20 @@ function JobRow({ job }: { job: Job }) {
       </View>
       <View className="flex-row items-center justify-between">
         <View>
-          <Text className="text-[14px] text-on-surface">{job.when}</Text>
-          <Text className="text-[12px] text-outline">{job.schedule}</Text>
+          <Text className="text-[14px] text-on-surface">{formatWhen(job.started_at ?? job.created_at)}</Text>
+          <Text className="text-[12px] text-outline">{job.job_type}</Text>
         </View>
-        <Text className="text-[12px] text-on-surface-variant">{job.records}</Text>
+        <Text className="text-[12px] text-on-surface-variant">{formatRecords(job)}</Text>
       </View>
       <View className="flex-row justify-end gap-2">
         <Pressable className="rounded-full p-2" hitSlop={4}>
           <MaterialIcons name="code" size={20} color="#bacbb9" />
         </Pressable>
-        {job.status === 'running' ? (
+        {visualStatus === 'running' ? (
           <Pressable className="rounded-full p-2" hitSlop={4}>
             <MaterialIcons name="stop" size={20} color="#bacbb9" />
           </Pressable>
-        ) : job.status === 'error' ? (
+        ) : visualStatus === 'error' ? (
           <Pressable className="rounded-full p-2" hitSlop={4}>
             <MaterialIcons name="replay" size={20} color="#bacbb9" />
           </Pressable>
@@ -173,6 +128,41 @@ function JobRow({ job }: { job: Job }) {
 }
 
 export default function DataSourcesScreen() {
+  const { data: stats, isLoading: statsLoading } = useScrapingJobStats();
+  const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
+
+  const overview: OverviewStat[] = stats
+    ? [
+        {
+          label: 'Total Records Synced',
+          value: stats.totalRecordsSynced.toLocaleString(),
+          note: 'Across recent jobs',
+          icon: 'storage',
+          noteColor: 'text-tertiary',
+          badgeBg: '#454747',
+          badgeColor: '#b4b5b5',
+        },
+        {
+          label: 'Active Jobs',
+          value: String(stats.activeJobCount),
+          note: stats.activeJobCount > 0 ? 'Running now' : 'None running',
+          icon: 'sync',
+          noteColor: 'text-primary',
+          badgeBg: 'rgba(37,99,235,0.2)',
+          badgeColor: '#00e676',
+        },
+        {
+          label: 'Error Rate',
+          value: `${(stats.errorRate * 100).toFixed(1)}%`,
+          note: 'Of recent jobs',
+          icon: 'error',
+          noteColor: 'text-error',
+          badgeBg: '#93000a',
+          badgeColor: '#ffdad6',
+        },
+      ]
+    : [];
+
   return (
     <SafeAreaView className="flex-1 bg-surface">
       <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
@@ -204,18 +194,34 @@ export default function DataSourcesScreen() {
           </Pressable>
         </View>
 
-        <View className="gap-stack-md">
-          {OVERVIEW.map((stat) => (
-            <OverviewCard key={stat.label} stat={stat} />
-          ))}
-        </View>
+        {statsLoading ? (
+          <View className="items-center py-4">
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <View className="gap-stack-md">
+            {overview.map((stat) => (
+              <OverviewCard key={stat.label} stat={stat} />
+            ))}
+          </View>
+        )}
 
         <View className="rounded-xl border border-outline-variant bg-surface-container-lowest">
-          {JOBS.map((job) => (
-            <JobRow key={job.id} job={job} />
-          ))}
+          {jobsLoading ? (
+            <View className="items-center py-8">
+              <ActivityIndicator />
+            </View>
+          ) : jobs && jobs.length > 0 ? (
+            jobs.map((job) => <JobRow key={job.id} job={job} />)
+          ) : (
+            <View className="items-center p-8">
+              <Text className="text-[14px] text-on-surface-variant">No scraping jobs yet.</Text>
+            </View>
+          )}
           <View className="flex-row items-center justify-between p-4">
-            <Text className="text-[12px] text-on-surface-variant">Showing 1-4 of 24 jobs</Text>
+            <Text className="text-[12px] text-on-surface-variant">
+              Showing {jobs?.length ?? 0} of {jobs?.length ?? 0} jobs
+            </Text>
             <View className="flex-row gap-2">
               <View className="rounded border border-outline-variant px-3 py-1">
                 <Text className="text-[12px] text-on-surface-variant">Previous</Text>

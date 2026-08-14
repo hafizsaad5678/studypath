@@ -1,52 +1,13 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type Scholarship = {
-  id: string;
-  name: string;
-  country: string;
-  level: string;
-  image: string;
-  featured?: boolean;
-  deadline: string;
-  deadlineUrgent?: boolean;
-  timeLeft: string;
-  stipend: string;
-  coverage: string;
-};
-
-const SCHOLARSHIPS: Scholarship[] = [
-  {
-    id: 'daad',
-    name: 'DAAD Scholarship',
-    country: 'Germany',
-    level: "Master's / PhD",
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCN3dIpRZtaV6tZ18Kb1H9n8GSe66TWzbiv2EDDZ8jOoJNob1qxprllT-hAB6GaEcScpJalaZAfAr0tgp9oIwWBI0B4kZncEqrumKv5FVG5-Up_6OGYjE-74wZyPmkShnlYVCd87wFiRp0AVy_tePQxms4F4WzMEHFHmY3hDMbeNZroVY3eKzKhQBzEOVCw2_bXPOmeuRzr9y6HgGgwJAjA6hdzraF8iiu_IRtiQ9ZMhs2HiLNKDAav5g',
-    featured: true,
-    deadline: 'Dec 15',
-    deadlineUrgent: true,
-    timeLeft: '2 weeks left',
-    stipend: '€934 - €1,200/mo',
-    coverage: 'Tuition, Travel, Health Insurance',
-  },
-  {
-    id: 'eiffel',
-    name: 'Eiffel Excellence Program',
-    country: 'France',
-    level: "Master's / PhD",
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAURTJUzcWbN-AcWkcn3KJwS0rI4FpxBKKjS-sdXqg2tfPDxbf0HwwpFN5SJJGJSIslynG_w3ppXPCUL47bU7pr7rHZOK0c3n5Z1pGt6FcDxJU22k6lKzg_qR_wUgZWZeotTGoLhlFPf43XAAr-xGKDIj0NTEKyzXqPAVMSrC1icZQ5GMcfZmt5afNC19N2uZyBU1MJHr-nVUMeWlP4GjKEysn2U4zxyg9neD-O-IILZ0Azm2IHF3VACw',
-    deadline: 'Jan 10',
-    timeLeft: '1 month left',
-    stipend: '€1,181 - €1,700/mo',
-    coverage: 'Living allowance, Travel, Housing aid',
-  },
-];
+import { useSavedItems } from '@/hooks/useSavedItems';
+import { useScholarships } from '@/hooks/useScholarships';
+import type { ScholarshipWithRelations } from '@/types/database';
 
 const COUNTRIES = ['Any Country', 'Germany', 'France', 'UK', 'USA'];
 const DEGREES = ['Any Level', "Bachelor's", "Master's", 'PhD'];
@@ -73,17 +34,42 @@ function FilterPill({
   );
 }
 
-function ScholarshipCard({ item }: { item: Scholarship }) {
+function formatDeadline(deadline: string | null) {
+  if (!deadline) return 'No deadline';
+  const d = new Date(deadline);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function timeLeftLabel(deadline: string | null) {
+  if (!deadline) return '';
+  const days = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days < 0) return 'Deadline passed';
+  if (days === 0) return 'Due today';
+  if (days < 14) return `${days} day${days === 1 ? '' : 's'} left`;
+  if (days < 60) return `${Math.round(days / 7)} weeks left`;
+  return `${Math.round(days / 30)} months left`;
+}
+
+function ScholarshipCard({ item }: { item: ScholarshipWithRelations }) {
+  const { isSaved, toggle } = useSavedItems();
+  const saved = isSaved('scholarship', item.id);
+  const urgent = item.deadline
+    ? Math.ceil((new Date(item.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 14
+    : false;
+
   return (
     <View className="mb-gutter overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
       <View className="h-32 w-full bg-surface-container-low">
-        <Image source={{ uri: item.image }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
-        {item.featured ? (
-          <View className="absolute right-stack-sm top-stack-sm flex-row items-center gap-1 rounded bg-primary-container px-2 py-1">
-            <MaterialIcons name="star" size={14} color="#00612e" />
-            <Text className="text-[12px] font-semibold text-on-primary-container">Featured</Text>
-          </View>
-        ) : null}
+        <Image
+          source={{ uri: item.university?.image_url ?? item.country?.image_url ?? '' }}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+        />
+        <Pressable
+          onPress={() => toggle('scholarship', item.id)}
+          className="absolute right-stack-sm top-stack-sm h-8 w-8 items-center justify-center rounded-full bg-surface-container-lowest">
+          <MaterialIcons name={saved ? 'bookmark' : 'bookmark-border'} size={18} color="#75ff9e" />
+        </Pressable>
       </View>
       <View className="p-stack-md">
         <View className="mb-1 flex-row items-start justify-between gap-2">
@@ -92,25 +78,25 @@ function ScholarshipCard({ item }: { item: Scholarship }) {
           </Text>
           <View
             className={`flex-row items-center gap-1 rounded px-2 py-0.5 ${
-              item.deadlineUrgent ? 'bg-error-container' : 'bg-surface-variant'
+              urgent ? 'bg-error-container' : 'bg-surface-variant'
             }`}>
             <MaterialIcons
-              name={item.deadlineUrgent ? 'schedule' : 'event'}
+              name={urgent ? 'schedule' : 'event'}
               size={14}
-              color={item.deadlineUrgent ? '#ffdad6' : '#bacbb9'}
+              color={urgent ? '#ffdad6' : '#bacbb9'}
             />
             <Text
               className={`text-[12px] font-semibold ${
-                item.deadlineUrgent ? 'text-on-error-container' : 'text-on-surface-variant'
+                urgent ? 'text-on-error-container' : 'text-on-surface-variant'
               }`}>
-              {item.deadline}
+              {formatDeadline(item.deadline)}
             </Text>
           </View>
         </View>
         <View className="mb-stack-md flex-row items-center gap-1">
           <MaterialIcons name="location-on" size={16} color="#bacbb9" />
           <Text className="text-[14px] text-on-surface-variant">
-            {item.country} • {item.level}
+            {item.country?.name ?? 'Multiple countries'} • {item.university?.name ?? 'Various institutions'}
           </Text>
         </View>
         <View className="mb-stack-md flex-row flex-wrap gap-stack-sm rounded-lg border border-surface-container-high bg-surface p-stack-sm">
@@ -118,22 +104,24 @@ function ScholarshipCard({ item }: { item: Scholarship }) {
             <Text className="text-[12px] text-on-surface-variant">Funding</Text>
             <View className="flex-row items-center gap-1">
               <MaterialIcons name="verified" size={14} color="#75ff9e" />
-              <Text className="text-[14px] font-semibold text-primary">Fully Funded</Text>
+              <Text className="text-[14px] font-semibold text-primary">
+                {item.funding_type === 'full' ? 'Fully Funded' : 'Partial Funding'}
+              </Text>
             </View>
           </View>
           <View className="w-[45%]">
             <Text className="text-[12px] text-on-surface-variant">Stipend</Text>
-            <Text className="text-[14px] text-on-surface">{item.stipend}</Text>
+            <Text className="text-[14px] text-on-surface">{item.amount_text ?? '—'}</Text>
           </View>
           <View className="w-full">
             <Text className="text-[12px] text-on-surface-variant">Coverage</Text>
-            <Text className="text-[14px] text-on-surface">{item.coverage}</Text>
+            <Text className="text-[14px] text-on-surface">{item.coverage ?? '—'}</Text>
           </View>
         </View>
         <View className="flex-row items-center justify-between border-t border-outline-variant pt-stack-sm">
-          <Text className="text-[12px] text-on-surface-variant">{item.timeLeft}</Text>
+          <Text className="text-[12px] text-on-surface-variant">{timeLeftLabel(item.deadline)}</Text>
           <Pressable
-            onPress={() => router.push({ pathname: "/program/[id]", params: { id: item.id } })}
+            onPress={() => router.push({ pathname: '/program/[id]', params: { id: item.program_id ?? item.id } })}
             className="rounded-lg bg-primary-container px-4 py-2">
             <Text className="text-[14px] font-semibold text-on-primary-container">View Details</Text>
           </Pressable>
@@ -145,6 +133,9 @@ function ScholarshipCard({ item }: { item: Scholarship }) {
 
 export default function ScholarshipsScreen() {
   const [search, setSearch] = useState('');
+  const { data: scholarships, isLoading } = useScholarships(search ? { search } : undefined);
+
+  const list = useMemo(() => scholarships ?? [], [scholarships]);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -186,9 +177,15 @@ export default function ScholarshipsScreen() {
           </Pressable>
         </View>
 
-        {SCHOLARSHIPS.map((s) => (
-          <ScholarshipCard key={s.id} item={s} />
-        ))}
+        {isLoading ? (
+          <View className="items-center py-8">
+            <ActivityIndicator />
+          </View>
+        ) : list.length === 0 ? (
+          <Text className="py-8 text-center text-[14px] text-on-surface-variant">No scholarships found.</Text>
+        ) : (
+          list.map((s) => <ScholarshipCard key={s.id} item={s} />)
+        )}
       </ScrollView>
     </SafeAreaView>
   );

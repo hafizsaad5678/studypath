@@ -1,38 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { router } from 'expo-router';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type Deadline = {
-  id: string;
-  title: string;
-  description: string;
-  daysLeft: string;
-  cta: string;
-  urgent: boolean;
-  icon: keyof typeof MaterialIcons.glyphMap;
-};
-
-const deadlines: Deadline[] = [
-  {
-    id: '1',
-    title: 'Sapienza University (MSc AI)',
-    description: 'Final application submission deadline.',
-    daysLeft: '5 days left',
-    cta: 'Complete Application',
-    urgent: true,
-    icon: 'warning',
-  },
-  {
-    id: '2',
-    title: 'Technical University of Munich',
-    description: 'Document upload and language proficiency proof.',
-    daysLeft: '20 days left',
-    cta: 'Upload Documents',
-    urgent: false,
-    icon: 'schedule',
-  },
-];
+import { useAuth } from '@/hooks/useAuth';
+import { useDeadlines } from '@/hooks/useDeadlines';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import { supabase } from '@/lib/supabase';
+import type { DeadlineWithRelations, ProgramWithUniversity } from '@/types/database';
 
 type QuickAction = {
   id: string;
@@ -47,72 +24,43 @@ const quickActions: QuickAction[] = [
   { id: '4', label: 'Get Advice', icon: 'person-add' },
 ];
 
-type Recommendation = {
-  id: string;
-  title: string;
-  school: string;
-  match: string;
-  image: string;
-  tagIcon: keyof typeof MaterialIcons.glyphMap;
-  tagLabel: string;
-};
+function daysUntil(dateStr: string) {
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+}
 
-const recommendations: Recommendation[] = [
-  {
-    id: '1',
-    title: 'MSc Computer Science',
-    school: 'ETH Zurich • Switzerland',
-    match: '92% Match',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAvyJ2zs4_LaY1C2ESofRF3kEe3BermygkqH27wXA8iXYZpqkXFplTFpO4Gz1P2Z4L5LsVwx_PCI6ETSjX4nwdXzP99I4Jw-qh2gkTkWnpR3Iv1LuIC5LC3xS3LHqLTe02rU8v2zkr_UC98ZbuFrKJfdHEMa13mVJ5h8XyS7UjQRHLQeeZR3EjeY_l8OYfrLko8WM0QOsHJBDErG3GhOptCeYSGdUbTjZtKao8bsCC8F1bNZIoCwDhWbQ',
-    tagIcon: 'payments',
-    tagLabel: 'Funding Available',
-  },
-  {
-    id: '2',
-    title: 'Master in Data Science',
-    school: 'Imperial College London • UK',
-    match: '88% Match',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAjjcXuEtvrM6kAry1z9bhx8zD6Rl8uqq6e1jIz-JW3FOR2Dk2IE8_mVMqtnwKFZO0UCbKXNNiLdbUBAA4UvtZLVhm3GCP6HWlic2v9LwdIqO5DaORDXQdqVPE1UBlBo40uram5GusPopfCK7pkndpplR607HYcI9Swz2Eh4pcZqnnSaRp3ZH0fJDX7i-oxc3V5oQi2FyvmfRzyPk6HKU0MeWW5G8waDsPyQAgaEYTl_YmZ8kVUBXGaPg',
-    tagIcon: 'language',
-    tagLabel: 'IELTS req.',
-  },
-  {
-    id: '3',
-    title: 'MSc Artificial Intelligence',
-    school: 'University of Amsterdam • NL',
-    match: '85% Match',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDW6EGPQlPBo2zLzpCTPa3slApKUpRQ2oP73uW5PfqaqnuJOJGNIVBKRzzQusasp_KKQeaX6ZoE8UvDxRNyjK5Jcbr-VPwp68WTuAZUj7_BmUi-tBSY9uYIDgVtilDvlOCE9tpXsqco1cH9-fYuRuzK331ELiSvib1pREpGSP6UZ1Nv7I3UgMJBd7R72ATCK5uYD2Erbp8KMi_3788W_XRhoVhgyQWdizP7ZC4mGAzdqNkSumrRmB819g',
-    tagIcon: 'groups',
-    tagLabel: 'High acceptance',
-  },
-];
+function deadlineTitle(item: DeadlineWithRelations) {
+  return item.program?.name ?? item.scholarship?.name ?? item.title;
+}
 
-function DeadlineItem({ item }: { item: Deadline }) {
-  const bg = item.urgent ? 'bg-error-container' : 'bg-[#2a2410]';
-  const iconColor = item.urgent ? '#ffb4ab' : '#f5c518';
-  const badgeBg = item.urgent ? 'bg-[#ffb4ab1a]' : 'bg-[#f5c5181a]';
-  const textColor = item.urgent ? 'text-error' : 'text-[#f5c518]';
+function DeadlineItem({ item }: { item: DeadlineWithRelations }) {
+  const days = daysUntil(item.deadline_date);
+  const urgent = days <= 7;
+  const bg = urgent ? 'bg-error-container' : 'bg-[#2a2410]';
+  const iconColor = urgent ? '#ffb4ab' : '#f5c518';
+  const badgeBg = urgent ? 'bg-[#ffb4ab1a]' : 'bg-[#f5c5181a]';
+  const textColor = urgent ? 'text-error' : 'text-[#f5c518]';
 
   return (
-    <View className={`flex-row items-start gap-4 rounded-lg p-4 ${bg}`}>
-      <MaterialIcons name={item.icon} size={22} color={iconColor} style={{ marginTop: 2 }} />
+    <Pressable
+      onPress={() => router.push({ pathname: '/program/[id]', params: { id: item.program_id ?? item.id } })}
+      className={`flex-row items-start gap-4 rounded-lg p-4 ${bg}`}>
+      <MaterialIcons name={urgent ? 'warning' : 'schedule'} size={22} color={iconColor} style={{ marginTop: 2 }} />
       <View className="flex-1">
         <View className="mb-1 flex-row items-start justify-between gap-2">
-          <Text className="flex-1 text-[14px] font-bold text-on-surface">{item.title}</Text>
+          <Text className="flex-1 text-[14px] font-bold text-on-surface">{deadlineTitle(item)}</Text>
           <Text className={`rounded px-2 py-1 text-[12px] font-bold ${badgeBg} ${textColor}`}>
-            {item.daysLeft}
+            {days <= 0 ? 'Due today' : `${days} day${days === 1 ? '' : 's'} left`}
           </Text>
         </View>
-        <Text className="mb-2 text-[14px] text-on-surface-variant">{item.description}</Text>
-        <Pressable className="flex-row items-center gap-1">
-          <Text className={`text-[12px] font-semibold ${textColor}`}>{item.cta}</Text>
+        <Text className="mb-2 text-[14px] text-on-surface-variant">
+          {item.university?.name ?? 'Multiple institutions'}
+        </Text>
+        <View className="flex-row items-center gap-1">
+          <Text className={`text-[12px] font-semibold ${textColor}`}>View details</Text>
           <MaterialIcons name="chevron-right" size={14} color={iconColor} />
-        </Pressable>
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -127,25 +75,38 @@ function QuickActionButton({ item }: { item: QuickAction }) {
   );
 }
 
-function RecommendationCard({ item }: { item: Recommendation }) {
+function RecommendationCard({ item }: { item: ProgramWithUniversity }) {
+  const { isSaved, toggle } = useSavedItems();
+  const saved = isSaved('program', item.id);
+
   return (
-    <Pressable className="w-full overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
+    <Pressable
+      onPress={() => router.push({ pathname: '/program/[id]', params: { id: item.id } })}
+      className="w-full overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
       <View className="h-32 w-full">
-        <Image source={{ uri: item.image }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
-        <View className="absolute right-2 top-2 rounded bg-surface-container-lowest px-2 py-1">
-          <Text className="text-[12px] font-bold text-primary">{item.match}</Text>
-        </View>
+        <Image
+          source={{ uri: item.university?.image_url ?? '' }}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+        />
+        {item.scholarship_available ? (
+          <View className="absolute right-2 top-2 rounded bg-surface-container-lowest px-2 py-1">
+            <Text className="text-[12px] font-bold text-primary">Funding Available</Text>
+          </View>
+        ) : null}
       </View>
       <View className="p-4">
-        <Text className="mb-1 text-[14px] font-bold text-on-surface">{item.title}</Text>
-        <Text className="mb-4 text-[14px] text-on-surface-variant">{item.school}</Text>
+        <Text className="mb-1 text-[14px] font-bold text-on-surface">{item.name}</Text>
+        <Text className="mb-4 text-[14px] text-on-surface-variant">
+          {item.university?.name} • {item.university?.country?.name}
+        </Text>
         <View className="flex-row items-center justify-between border-t border-outline-variant pt-3">
           <View className="flex-row items-center gap-1">
-            <MaterialIcons name={item.tagIcon} size={16} color="#bacbb9" />
-            <Text className="text-[12px] text-on-surface-variant">{item.tagLabel}</Text>
+            <MaterialIcons name="school" size={16} color="#bacbb9" />
+            <Text className="text-[12px] text-on-surface-variant">{item.field_of_study ?? item.degree_level}</Text>
           </View>
-          <Pressable className="rounded-full p-2">
-            <MaterialIcons name="bookmark-border" size={20} color="#75ff9e" />
+          <Pressable onPress={() => toggle('program', item.id)} className="rounded-full p-2">
+            <MaterialIcons name={saved ? 'bookmark' : 'bookmark-border'} size={20} color="#75ff9e" />
           </Pressable>
         </View>
       </View>
@@ -154,6 +115,25 @@ function RecommendationCard({ item }: { item: Recommendation }) {
 }
 
 export default function HomeScreen() {
+  const { profile } = useAuth();
+  const { data: deadlines, isLoading: deadlinesLoading } = useDeadlines(3);
+
+  const { data: recommendations, isLoading: recsLoading } = useQuery({
+    queryKey: ['home-recommendations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('programs')
+        .select('*, university:universities(*, country:countries(*))')
+        .limit(3);
+      if (error) throw error;
+      return (data ?? []) as ProgramWithUniversity[];
+    },
+  });
+
+  const profileComplete = !!profile?.education_level;
+  const completionPct = profileComplete ? 100 : 50;
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'there';
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
@@ -168,7 +148,7 @@ export default function HomeScreen() {
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-6" showsVerticalScrollIndicator={false}>
         <View className="mb-8">
-          <Text className="mb-2 text-[28px] font-bold text-on-surface">Good afternoon, Ahmed 👋</Text>
+          <Text className="mb-2 text-[28px] font-bold text-on-surface">Good afternoon, {firstName} 👋</Text>
           <Text className="text-[16px] text-on-surface-variant">
             Here is a summary of your academic journey.
           </Text>
@@ -177,14 +157,14 @@ export default function HomeScreen() {
         <View className="mb-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
           <View className="mb-4 flex-row items-center justify-between">
             <Text className="text-[20px] font-semibold text-on-surface">Profile Setup</Text>
-            <Text className="text-[14px] font-bold text-primary">75% complete</Text>
+            <Text className="text-[14px] font-bold text-primary">{completionPct}% complete</Text>
           </View>
           <Text className="mb-6 text-[14px] text-on-surface-variant">
             Complete your profile to unlock personalized university recommendations and higher
             scholarship matches.
           </Text>
           <View className="mb-4 h-2 w-full rounded-full bg-surface-container-high">
-            <View className="h-2 rounded-full bg-primary" style={{ width: '75%' }} />
+            <View className="h-2 rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
           </View>
           <Pressable className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-primary-container px-4 py-3">
             <Text className="text-[14px] font-semibold text-on-primary-container">Complete Profile</Text>
@@ -195,15 +175,21 @@ export default function HomeScreen() {
         <View className="mb-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
           <View className="mb-6 flex-row items-center justify-between">
             <Text className="text-[20px] font-semibold text-on-surface">Upcoming Deadlines</Text>
-            <Pressable>
+            <Pressable onPress={() => router.push('/(tabs)/deadlines')}>
               <Text className="text-[12px] font-semibold text-primary">View All</Text>
             </Pressable>
           </View>
-          <View className="gap-4">
-            {deadlines.map((d) => (
-              <DeadlineItem key={d.id} item={d} />
-            ))}
-          </View>
+          {deadlinesLoading ? (
+            <ActivityIndicator />
+          ) : (deadlines ?? []).length === 0 ? (
+            <Text className="text-[14px] text-on-surface-variant">No upcoming deadlines.</Text>
+          ) : (
+            <View className="gap-4">
+              {(deadlines ?? []).map((d) => (
+                <DeadlineItem key={d.id} item={d} />
+              ))}
+            </View>
+          )}
         </View>
 
         <View className="mb-6">
@@ -218,15 +204,21 @@ export default function HomeScreen() {
         <View>
           <View className="mb-6 flex-row items-center justify-between">
             <Text className="text-[20px] font-semibold text-on-surface">Recommended for You</Text>
-            <Pressable>
+            <Pressable onPress={() => router.push('/(tabs)/explore')}>
               <Text className="text-[12px] font-semibold text-primary">Explore All</Text>
             </Pressable>
           </View>
-          <View className="gap-4">
-            {recommendations.map((r) => (
-              <RecommendationCard key={r.id} item={r} />
-            ))}
-          </View>
+          {recsLoading ? (
+            <ActivityIndicator />
+          ) : (recommendations ?? []).length === 0 ? (
+            <Text className="text-[14px] text-on-surface-variant">No recommendations yet.</Text>
+          ) : (
+            <View className="gap-4">
+              {(recommendations ?? []).map((r) => (
+                <RecommendationCard key={r.id} item={r} />
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

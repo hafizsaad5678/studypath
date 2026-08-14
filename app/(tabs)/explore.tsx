@@ -1,120 +1,56 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
-type ProgramCard = {
-  id: string;
-  matchesProfile: boolean;
-  title: string;
-  school: string;
-  tuition: string;
-  deadline: string;
-  urgentDeadline: boolean;
-  tags: { icon: keyof typeof MaterialIcons.glyphMap; label: string; scholarship?: boolean }[];
-};
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import type { DegreeLevel, ProgramWithUniversity } from '@/types/database';
 
-const programs: ProgramCard[] = [
-  {
-    id: '1',
-    matchesProfile: true,
-    title: 'MSc Data Science & Artificial Intelligence',
-    school: 'Technical University of Munich • Germany',
-    tuition: '€0 / yr',
-    deadline: 'May 31, 2024',
-    urgentDeadline: true,
-    tags: [
-      { icon: 'workspace-premium', label: 'Scholarship Available', scholarship: true },
-      { icon: 'language', label: 'English Taught' },
-    ],
-  },
-  {
-    id: '2',
-    matchesProfile: false,
-    title: 'Master in Machine Learning',
-    school: 'KTH Royal Institute of Technology • Sweden',
-    tuition: '€14,500 / yr',
-    deadline: 'Jan 15, 2024',
-    urgentDeadline: false,
-    tags: [
-      { icon: 'language', label: 'English Taught' },
-      { icon: 'schedule', label: '2 Years' },
-    ],
-  },
-  {
-    id: '3',
-    matchesProfile: true,
-    title: 'MSc Applied Data Analytics',
-    school: 'University of Amsterdam • Netherlands',
-    tuition: '€2,314 / yr',
-    deadline: 'Apr 01, 2024',
-    urgentDeadline: false,
-    tags: [
-      { icon: 'workspace-premium', label: 'Partial Funding', scholarship: true },
-      { icon: 'schedule', label: '1 Year' },
-    ],
-  },
-  {
-    id: '4',
-    matchesProfile: false,
-    title: 'MSc Robotics & Autonomous Systems',
-    school: 'ETH Zurich • Switzerland',
-    tuition: '€1,460 / yr',
-    deadline: 'Dec 15, 2024',
-    urgentDeadline: false,
-    tags: [
-      { icon: 'language', label: 'English Taught' },
-      { icon: 'schedule', label: '2 Years' },
-    ],
-  },
-  {
-    id: '5',
-    matchesProfile: true,
-    title: 'Master in International Business',
-    school: 'Copenhagen Business School • Denmark',
-    tuition: '€16,000 / yr',
-    deadline: 'Mar 01, 2024',
-    urgentDeadline: false,
-    tags: [
-      { icon: 'workspace-premium', label: 'Scholarship Available', scholarship: true },
-      { icon: 'language', label: 'English Taught' },
-    ],
-  },
-  {
-    id: '6',
-    matchesProfile: false,
-    title: 'MSc Renewable Energy Engineering',
-    school: 'University of Edinburgh • UK',
-    tuition: '£24,500 / yr',
-    deadline: 'Jun 30, 2024',
-    urgentDeadline: false,
-    tags: [
-      { icon: 'language', label: 'English Taught' },
-      { icon: 'schedule', label: '1 Year' },
-    ],
-  },
+const DEGREE_FILTERS: { label: string; value: DegreeLevel | null }[] = [
+  { label: 'All Degrees', value: null },
+  { label: 'Diploma', value: 'diploma' },
+  { label: 'Bachelor', value: 'bachelor' },
+  { label: 'Master', value: 'master' },
+  { label: 'PhD', value: 'phd' },
 ];
 
-const filterChips = ['Country', 'Degree', 'Field', 'Tuition'];
+const filterChips = ['Country', 'Field', 'Tuition'];
 
-function ProgramCardView({ item }: { item: ProgramCard }) {
+function formatTuition(p: ProgramWithUniversity) {
+  if (p.tuition_amount == null) return 'N/A';
+  return `${p.tuition_currency ?? ''}${p.tuition_amount} / yr`;
+}
+
+function ProgramCardView({
+  item,
+  isSaved,
+  onToggleSave,
+}: {
+  item: ProgramWithUniversity;
+  isSaved: boolean;
+  onToggleSave: () => void;
+}) {
   return (
-    <Pressable className="relative flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
-      {item.matchesProfile && (
-        <View className="absolute right-0 top-0 flex-row items-center gap-1 rounded-bl-lg bg-secondary-container px-3 py-1">
-          <MaterialIcons name="bolt" size={12} color="#b4b5b5" />
-          <Text className="text-[10px] font-bold uppercase tracking-wider text-on-secondary-container">
-            Matches Profile
-          </Text>
-        </View>
-      )}
+    <Pressable
+      onPress={() => router.push({ pathname: '/program/[id]', params: { id: item.id } })}
+      className="relative flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+      <Pressable
+        onPress={onToggleSave}
+        hitSlop={8}
+        className="absolute right-3 top-3 z-10 h-8 w-8 items-center justify-center rounded-full bg-surface-container">
+        <MaterialIcons name={isSaved ? 'bookmark' : 'bookmark-border'} size={18} color="#bacbb9" />
+      </Pressable>
       <View className="mb-4 flex-row items-start gap-4 pr-4">
         <View className="h-16 w-16 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
           <MaterialIcons name="account-balance" size={28} color="#bacbb9" />
         </View>
         <View className="flex-1">
-          <Text className="text-[18px] font-semibold text-on-surface">{item.title}</Text>
-          <Text className="mt-1 text-[14px] text-on-surface-variant">{item.school}</Text>
+          <Text className="text-[18px] font-semibold text-on-surface">{item.name}</Text>
+          <Text className="mt-1 text-[14px] text-on-surface-variant">
+            {[item.university?.name, item.university?.country?.name].filter(Boolean).join(' • ')}
+          </Text>
         </View>
       </View>
       <View className="mb-4 flex-row justify-between border-t border-outline-variant pt-4">
@@ -122,36 +58,30 @@ function ProgramCardView({ item }: { item: ProgramCard }) {
           <Text className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
             Tuition
           </Text>
-          <Text className="text-[16px] font-medium text-on-surface">{item.tuition}</Text>
+          <Text className="text-[16px] font-medium text-on-surface">{formatTuition(item)}</Text>
         </View>
         <View>
           <Text className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
             Deadline
           </Text>
-          <Text
-            className={`text-[16px] font-medium ${item.urgentDeadline ? 'text-error' : 'text-on-surface'}`}>
-            {item.deadline}
+          <Text className="text-[16px] font-medium text-on-surface">
+            {item.application_deadline ?? 'TBA'}
           </Text>
         </View>
       </View>
       <View className="flex-row flex-wrap gap-2">
-        {item.tags.map((tag) => (
-          <View
-            key={tag.label}
-            className={`flex-row items-center gap-1 rounded-md px-2 py-1 ${
-              tag.scholarship ? 'bg-tertiary-container/10' : 'bg-surface-container'
-            }`}>
-            <MaterialIcons
-              name={tag.icon}
-              size={14}
-              color={tag.scholarship ? '#cac8ca' : '#bacbb9'}
-            />
-            <Text
-              className={`text-[12px] font-medium ${tag.scholarship ? 'text-tertiary-container' : 'text-on-surface-variant'}`}>
-              {tag.label}
-            </Text>
+        {item.scholarship_available && (
+          <View className="flex-row items-center gap-1 rounded-md px-2 py-1 bg-tertiary-container/10">
+            <MaterialIcons name="workspace-premium" size={14} color="#cac8ca" />
+            <Text className="text-[12px] font-medium text-tertiary-container">Scholarship Available</Text>
           </View>
-        ))}
+        )}
+        {item.language && (
+          <View className="flex-row items-center gap-1 rounded-md px-2 py-1 bg-surface-container">
+            <MaterialIcons name="language" size={14} color="#bacbb9" />
+            <Text className="text-[12px] font-medium text-on-surface-variant">{item.language}</Text>
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -159,6 +89,13 @@ function ProgramCardView({ item }: { item: ProgramCard }) {
 
 export default function ExploreScreen() {
   const [search, setSearch] = useState('');
+  const [degreeLevel, setDegreeLevel] = useState<DegreeLevel | null>(null);
+
+  const { data: programs, isLoading, isError } = usePrograms({
+    search: search || undefined,
+    degreeLevel: degreeLevel ?? undefined,
+  });
+  const { isSaved, toggle } = useSavedItems();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -193,6 +130,23 @@ export default function ExploreScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-2 pb-4">
+          {DEGREE_FILTERS.map((chip) => (
+            <Pressable
+              key={chip.label}
+              onPress={() => setDegreeLevel(chip.value)}
+              className={`flex-row items-center gap-1 rounded-full border px-4 py-2 ${
+                degreeLevel === chip.value
+                  ? 'border-primary bg-primary-container'
+                  : 'border-outline-variant bg-surface-container-lowest'
+              }`}>
+              <Text
+                className={`text-[14px] font-semibold ${
+                  degreeLevel === chip.value ? 'text-on-primary-container' : 'text-on-surface'
+                }`}>
+                {chip.label}
+              </Text>
+            </Pressable>
+          ))}
           {filterChips.map((chip) => (
             <Pressable
               key={chip}
@@ -204,14 +158,33 @@ export default function ExploreScreen() {
         </ScrollView>
 
         <View className="mb-4 mt-2 flex-row items-center justify-between">
-          <Text className="text-[20px] font-semibold text-on-surface">240 Programs Found</Text>
+          <Text className="text-[20px] font-semibold text-on-surface">
+            {isLoading ? 'Loading…' : `${programs?.length ?? 0} Programs Found`}
+          </Text>
         </View>
 
-        <View className="gap-4">
-          {programs.map((p) => (
-            <ProgramCardView key={p.id} item={p} />
-          ))}
-        </View>
+        {isLoading ? (
+          <View className="items-center py-8">
+            <ActivityIndicator />
+          </View>
+        ) : isError ? (
+          <Text className="text-center text-[14px] text-on-surface-variant">
+            Something went wrong loading programs.
+          </Text>
+        ) : !programs || programs.length === 0 ? (
+          <Text className="text-center text-[14px] text-on-surface-variant">No programs found.</Text>
+        ) : (
+          <View className="gap-4">
+            {programs.map((p) => (
+              <ProgramCardView
+                key={p.id}
+                item={p}
+                isSaved={isSaved('program', p.id)}
+                onToggleSave={() => toggle('program', p.id)}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

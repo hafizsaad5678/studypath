@@ -1,7 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useAdminStats, useRecentActivity } from '@/hooks/useAdminStats';
 
 type StatCard = {
   label: string;
@@ -10,12 +12,6 @@ type StatCard = {
   icon: keyof typeof MaterialIcons.glyphMap;
   tone: 'default' | 'error';
 };
-
-const STATS: StatCard[] = [
-  { label: 'Universities', value: '1.2k', trend: '+12 this week', icon: 'account-balance', tone: 'default' },
-  { label: 'Programs', value: '3.5k', trend: '+45 this week', icon: 'description', tone: 'default' },
-  { label: 'Data verification', value: '12', trend: 'Requires manual review', icon: 'warning', tone: 'error' },
-];
 
 type ActivityItem = {
   title: string;
@@ -27,35 +23,16 @@ type ActivityItem = {
   tag?: string;
 };
 
-const ACTIVITY: ActivityItem[] = [
-  {
-    title: 'Updated TU Munich deadlines',
-    description:
-      'Automated scraper updated Fall 2024 application deadlines for Engineering programs.',
-    time: '10 mins ago',
-    icon: 'event',
-    iconBg: '#454747',
-    iconColor: '#75ff9e',
-    tag: 'System',
-  },
-  {
-    title: 'Verified 5 new scholarships',
-    description: 'Manual review completed for DAAD funding options.',
-    time: '2 hours ago',
-    icon: 'verified',
-    iconBg: '#e4e2e4',
-    iconColor: '#e7e4e6',
-    tag: 'Admin User',
-  },
-  {
-    title: 'User Report: Broken Link',
-    description: 'Reported issue with MIT admissions page URL.',
-    time: '5 hours ago',
-    icon: 'report',
-    iconBg: '#93000a',
-    iconColor: '#ffb4ab',
-  },
-];
+function formatRelativeTime(timestamp: string): string {
+  const diffMs = Date.now() - new Date(timestamp).getTime();
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
 
 type QuickAction = {
   label: string;
@@ -158,6 +135,44 @@ function QuickActionRow({ action }: { action: QuickAction }) {
 }
 
 export default function AdminDashboardScreen() {
+  const { data: stats, isLoading: statsLoading } = useAdminStats();
+  const { data: activity, isLoading: activityLoading } = useRecentActivity(3);
+
+  const statCards: StatCard[] = stats
+    ? [
+        {
+          label: 'Universities',
+          value: String(stats.universityCount),
+          trend: 'Live count',
+          icon: 'account-balance',
+          tone: 'default',
+        },
+        {
+          label: 'Programs',
+          value: String(stats.programCount),
+          trend: 'Live count',
+          icon: 'description',
+          tone: 'default',
+        },
+        {
+          label: 'Data verification',
+          value: String(stats.pendingVerificationCount),
+          trend: 'Requires manual review',
+          icon: 'warning',
+          tone: 'error',
+        },
+      ]
+    : [];
+
+  const activityItems: ActivityItem[] = (activity ?? []).map((item) => ({
+    title: item.label,
+    description: '',
+    time: formatRelativeTime(item.timestamp),
+    icon: 'event',
+    iconBg: '#454747',
+    iconColor: '#75ff9e',
+  }));
+
   return (
     <SafeAreaView className="flex-1 bg-surface">
       <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
@@ -173,11 +188,17 @@ export default function AdminDashboardScreen() {
       <ScrollView contentContainerClassName="gap-gutter px-margin-mobile py-stack-lg">
         <Text className="text-[28px] font-bold text-on-surface">Overview</Text>
 
-        <View className="flex-row gap-stack-md">
-          {STATS.map((stat) => (
-            <StatCardView key={stat.label} stat={stat} />
-          ))}
-        </View>
+        {statsLoading ? (
+          <View className="items-center py-4">
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <View className="flex-row gap-stack-md">
+            {statCards.map((stat) => (
+              <StatCardView key={stat.label} stat={stat} />
+            ))}
+          </View>
+        )}
 
         <View className="rounded-xl border border-outline-variant bg-surface-container-lowest">
           <View className="flex-row items-center justify-between border-b border-outline-variant p-4">
@@ -185,9 +206,15 @@ export default function AdminDashboardScreen() {
             <Text className="text-[14px] font-semibold text-primary">View All</Text>
           </View>
           <View className="gap-stack-md p-4">
-            {ACTIVITY.map((item) => (
-              <ActivityRow key={item.title} item={item} />
-            ))}
+            {activityLoading ? (
+              <View className="items-center py-4">
+                <ActivityIndicator />
+              </View>
+            ) : activityItems.length > 0 ? (
+              activityItems.map((item, index) => <ActivityRow key={`${item.title}-${index}`} item={item} />)
+            ) : (
+              <Text className="text-[14px] text-on-surface-variant">No recent activity.</Text>
+            )}
           </View>
         </View>
 
