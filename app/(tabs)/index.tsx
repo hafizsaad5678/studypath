@@ -12,6 +12,8 @@ import { useSavedItems } from '@/hooks/useSavedItems';
 import { supabase } from '@/lib/supabase';
 import type { DeadlineWithRelations, ProgramWithUniversity } from '@/types/database';
 
+import { daysUntil } from '@/lib/formatters';
+
 type QuickAction = {
   id: string;
   label: string;
@@ -22,12 +24,8 @@ const quickActions: QuickAction[] = [
   { id: '1', label: 'Find Programs', icon: 'search' },
   { id: '2', label: 'Scholarships', icon: 'payments' },
   { id: '3', label: 'Deadlines', icon: 'event' },
-  { id: '4', label: 'Get Advice', icon: 'person-add' },
+  { id: '4', label: 'Compare', icon: 'compare' },
 ];
-
-function daysUntil(dateStr: string) {
-  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-}
 
 function deadlineTitle(item: DeadlineWithRelations) {
   return item.program?.name ?? item.scholarship?.name ?? item.title;

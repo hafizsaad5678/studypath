@@ -9,16 +9,13 @@ import { AppHeader } from '@/components/layout/app-header';
 import { useDeadlines } from '@/hooks/useDeadlines';
 import type { DeadlineWithRelations } from '@/types/database';
 
-function daysUntil(dateStr: string) {
-  const ms = new Date(dateStr).getTime() - Date.now();
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
-}
+import { daysUntil } from '@/lib/formatters';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function timeLeftLabel(days: number) {
+function timeLeftBadgeLabel(days: number) {
   if (days <= 0) return 'Due today';
   if (days === 1) return '1 Day Left';
   if (days < 30) return `${days} Days Left`;
@@ -72,7 +69,7 @@ function DeadlineRow({ item, urgent }: { item: DeadlineWithRelations; urgent?: b
         <View className="flex-row items-center gap-1">
           <MaterialIcons name={urgent ? 'timer' : 'schedule'} size={18} color={urgent ? '#ffb4ab' : '#e7e4e6'} />
           <Text className={`text-[14px] font-semibold ${urgent ? 'text-error' : 'text-tertiary'}`}>
-            {timeLeftLabel(daysUntil(item.deadline_date))}
+            {timeLeftBadgeLabel(daysUntil(item.deadline_date))}
           </Text>
         </View>
         <Text className="text-[14px] text-on-surface-variant">{formatDate(item.deadline_date)}</Text>

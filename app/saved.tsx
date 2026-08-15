@@ -75,6 +75,9 @@ function SectionHeader({ title, count }: { title: string; count: number }) {
   );
 }
 
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+
 export default function SavedScreen() {
   const { data: savedItems, isLoading: savedLoading, toggle } = useSavedItems();
 
@@ -95,11 +98,15 @@ export default function SavedScreen() {
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <View className="items-center py-8">
-            <ActivityIndicator />
-          </View>
+          <LoadingState message="Loading saved items..." />
         ) : totalCount === 0 ? (
-          <Text className="py-8 text-center text-[14px] text-on-surface-variant">Nothing saved yet</Text>
+          <EmptyState
+            icon="bookmark-border"
+            title="Nothing saved yet"
+            description="Bookmark programs, universities, or scholarships to access them quickly here."
+            actionLabel="Explore Now"
+            onAction={() => router.push('/(tabs)/explore')}
+          />
         ) : (
           <>
             {universities && universities.length > 0 ? (

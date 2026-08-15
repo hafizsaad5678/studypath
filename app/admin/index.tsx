@@ -44,14 +44,17 @@ type QuickAction = {
 };
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { label: 'Scraping Jobs', sublabel: 'Manage active workers', icon: 'bug-report' },
   {
     label: 'Data Sources',
-    sublabel: 'Configure university APIs',
+    sublabel: 'Configure and verify university APIs',
     icon: 'dataset',
     href: '/admin/data-sources',
   },
-  { label: 'User Reports', sublabel: 'Review community feedback', icon: 'flag', badge: '3' },
+  {
+    label: 'Scraping Jobs',
+    sublabel: 'View active data ingestion pipelines',
+    icon: 'bug-report',
+  },
 ];
 
 function StatCardView({ stat }: { stat: StatCard }) {

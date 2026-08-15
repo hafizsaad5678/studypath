@@ -8,28 +8,27 @@ import { AppHeader } from '@/components/layout/app-header';
 import { useCountry } from '@/hooks/useCountries';
 import { useUniversitiesByCountry } from '@/hooks/useUniversities';
 
+import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { formatTuition } from '@/lib/formatters';
+
 const TIMELINE = [
   {
     active: true,
-    label: 'September / October Intake (Main)',
+    label: 'Fall Intake (Primary)',
     window: 'Application Window: Dec - May',
-    desc: 'The primary intake for almost all Bachelor\'s and Master\'s programs. Pre-enrollment via Universitaly is required for non-EU students.',
+    desc: 'The primary intake for almost all Bachelor\'s and Master\'s programs. Early application recommended for international admissions.',
   },
   {
     active: false,
-    label: 'February / March Intake (Secondary)',
+    label: 'Spring Intake (Secondary)',
     window: 'Application Window: Jul - Oct',
-    desc: 'Available for select Master\'s programs and a limited number of Bachelor\'s degrees. Check specific university offerings.',
+    desc: 'Available for select Master\'s programs and limited Bachelor\'s courses.',
   },
 ];
 
-const TABS = ['Overview', 'Universities', 'Scholarships', 'Deadlines'];
-
-function formatTuition(min: number | null, max: number | null, currency: string | null) {
-  if (min == null && max == null) return 'N/A';
-  const symbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'CAD' ? 'C$' : '';
-  return `${symbol}${min ?? 0} - ${symbol}${max ?? 0}`;
-}
+const TABS = ['Overview', 'Universities', 'Visa & Cost'];
 
 export default function CountryDetailScreen() {
   const params = useLocalSearchParams<{ slug: string }>();
@@ -48,7 +47,7 @@ export default function CountryDetailScreen() {
           label: 'Avg. Tuition',
           value: formatTuition(country.avg_tuition_min, country.avg_tuition_max, country.currency),
           unit: '/ year',
-          desc: `Studying in ${country.name}`,
+          desc: `Typical annual tuition in ${country.name}`,
         },
         {
           icon: 'account-balance' as const,
@@ -56,8 +55,8 @@ export default function CountryDetailScreen() {
           iconColor: '#00612e',
           label: 'Universities',
           value: `${universities?.length ?? 0}`,
-          unit: '',
-          desc: 'Recognized higher education institutions',
+          unit: 'Institutions',
+          desc: `Recognized higher education universities in ${country.name}`,
         },
       ]
     : [];
@@ -66,9 +65,7 @@ export default function CountryDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <AppHeader variant="detail" title="Loading Country..." />
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#75ff9e" />
-        </View>
+        <LoadingState message="Loading country details..." />
       </SafeAreaView>
     );
   }
@@ -77,9 +74,7 @@ export default function CountryDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <AppHeader variant="detail" title="Country Details" />
-        <View className="flex-1 items-center justify-center px-margin-mobile">
-          <Text className="text-center text-[16px] text-on-surface-variant">Country not found.</Text>
-        </View>
+        <ErrorState message="Country not found." onRetry={() => router.back()} />
       </SafeAreaView>
     );
   }

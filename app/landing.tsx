@@ -21,11 +21,7 @@ const STEPS: { icon: keyof typeof MaterialIcons.glyphMap; title: string; desc: s
   { icon: 'flight-takeoff', title: 'Enroll', desc: 'Secure your spot, arrange visas, and prepare for departure.' },
 ];
 
-function formatTuition(min: number | null, max: number | null, currency: string | null) {
-  if (min == null && max == null) return null;
-  const symbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'CAD' ? 'C$' : '';
-  return `${symbol}${min ?? 0}${max ? `–${symbol}${max}` : ''} Tuition`;
-}
+import { formatTuition } from '@/lib/formatters';
 
 function CountryCard({ item, wide }: { item: CountryRow; wide?: boolean }) {
   const stats = formatTuition(item.avg_tuition_min, item.avg_tuition_max, item.currency);

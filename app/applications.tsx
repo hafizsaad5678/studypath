@@ -72,6 +72,9 @@ function ApplicationCard({ item }: { item: ApplicationWithProgram }) {
   );
 }
 
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+
 export default function ApplicationsScreen() {
   const { data, isLoading } = useApplications();
 
@@ -81,18 +84,15 @@ export default function ApplicationsScreen() {
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <View className="items-center py-8">
-            <ActivityIndicator />
-          </View>
+          <LoadingState message="Loading your applications..." />
         ) : (data ?? []).length === 0 ? (
-          <View className="items-center gap-stack-md py-8">
-            <Text className="text-[16px] text-on-surface-variant">No applications yet</Text>
-            <Pressable
-              onPress={() => router.push('/(tabs)/explore')}
-              className="rounded-lg bg-primary-container px-4 py-2">
-              <Text className="text-[14px] font-semibold text-on-primary-container">Explore Programs</Text>
-            </Pressable>
-          </View>
+          <EmptyState
+            icon="assignment"
+            title="No applications yet"
+            description="Browse university programs and add them to track your application process."
+            actionLabel="Explore Programs"
+            onAction={() => router.push('/(tabs)/explore')}
+          />
         ) : (
           (data ?? []).map((app) => <ApplicationCard key={app.id} item={app} />)
         )}

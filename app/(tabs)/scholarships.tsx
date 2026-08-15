@@ -2,53 +2,23 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppHeader } from '@/components/layout/app-header';
+import { CountryPickerModal } from '@/components/ui/country-picker-modal';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { useCountries } from '@/hooks/useCountries';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useScholarships } from '@/hooks/useScholarships';
+import { timeLeftLabel } from '@/lib/formatters';
 import type { ScholarshipWithRelations } from '@/types/database';
-
-const COUNTRIES = ['Any Country', 'Germany', 'France', 'UK', 'USA'];
-const DEGREES = ['Any Level', "Bachelor's", "Master's", 'PhD'];
-
-function FilterPill({
-  icon,
-  label,
-  value,
-}: {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  label: string;
-  value: string;
-}) {
-  return (
-    <View className="flex-1 min-w-[45%] rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-md gap-stack-sm">
-      <View className="flex-row items-center gap-1">
-        <MaterialIcons name={icon} size={16} color="#e2e2e2" />
-        <Text className="text-[14px] font-semibold text-on-surface">{label}</Text>
-      </View>
-      <View className="rounded-lg border border-outline-variant bg-surface-container-low px-2 py-2">
-        <Text className="text-[14px] text-on-surface">{value}</Text>
-      </View>
-    </View>
-  );
-}
 
 function formatDeadline(deadline: string | null) {
   if (!deadline) return 'No deadline';
   const d = new Date(deadline);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
-function timeLeftLabel(deadline: string | null) {
-  if (!deadline) return '';
-  const days = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  if (days < 0) return 'Deadline passed';
-  if (days === 0) return 'Due today';
-  if (days < 14) return `${days} day${days === 1 ? '' : 's'} left`;
-  if (days < 60) return `${Math.round(days / 7)} weeks left`;
-  return `${Math.round(days / 30)} months left`;
 }
 
 function ScholarshipCard({ item }: { item: ScholarshipWithRelations }) {
@@ -123,7 +93,7 @@ function ScholarshipCard({ item }: { item: ScholarshipWithRelations }) {
           <Text className="text-[12px] text-on-surface-variant">{timeLeftLabel(item.deadline)}</Text>
           <Pressable
             onPress={() => router.push({ pathname: '/program/[id]', params: { id: item.program_id ?? item.id } })}
-            className="rounded-lg bg-primary-container px-4 py-2">
+            className="rounded-lg bg-primary-container px-4 py-2 active:opacity-80">
             <Text className="text-[14px] font-semibold text-on-primary-container">View Details</Text>
           </Pressable>
         </View>
@@ -131,10 +101,6 @@ function ScholarshipCard({ item }: { item: ScholarshipWithRelations }) {
     </View>
   );
 }
-
-import { useCountries } from '@/hooks/useCountries';
-import type { FundingType } from '@/types/database';
-import { Modal } from 'react-native';
 
 export default function ScholarshipsScreen() {
   const [search, setSearch] = useState('');
@@ -224,59 +190,31 @@ export default function ScholarshipsScreen() {
         </View>
 
         {isLoading ? (
-          <View className="items-center py-8">
-            <ActivityIndicator />
-          </View>
+          <LoadingState message="Finding scholarships..." />
         ) : list.length === 0 ? (
-          <Text className="py-8 text-center text-[14px] text-on-surface-variant">No scholarships found.</Text>
+          <EmptyState
+            title="No scholarships found"
+            description="Try changing your search terms or country filter."
+            actionLabel="Clear Filters"
+            onAction={() => {
+              setSearch('');
+              setSelectedCountryId(null);
+              setFullyFundedOnly(false);
+            }}
+          />
         ) : (
           list.map((s) => <ScholarshipCard key={s.id} item={s} />)
         )}
       </ScrollView>
 
-      <Modal visible={showCountryModal} transparent animationType="fade" onRequestClose={() => setShowCountryModal(false)}>
-        <Pressable className="flex-1 bg-black/60 justify-end" onPress={() => setShowCountryModal(false)}>
-          <Pressable className="max-h-[70%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6" onPress={(e) => e.stopPropagation?.()}>
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="text-[18px] font-bold text-on-surface">Select Country</Text>
-              <Pressable onPress={() => setShowCountryModal(false)} hitSlop={8}>
-                <MaterialIcons name="close" size={22} color="#bacbb9" />
-              </Pressable>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Pressable
-                onPress={() => {
-                  setSelectedCountryId(null);
-                  setShowCountryModal(false);
-                }}
-                className={`flex-row items-center justify-between rounded-xl p-4 ${
-                  !selectedCountryId ? 'bg-primary-container/20' : 'active:bg-surface-container'
-                }`}>
-                <Text className={`text-[16px] ${!selectedCountryId ? 'font-bold text-primary' : 'text-on-surface'}`}>
-                  All Countries
-                </Text>
-                {!selectedCountryId ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
-              </Pressable>
-              {(countries ?? []).map((c) => (
-                <Pressable
-                  key={c.id}
-                  onPress={() => {
-                    setSelectedCountryId(c.id);
-                    setShowCountryModal(false);
-                  }}
-                  className={`flex-row items-center justify-between rounded-xl p-4 ${
-                    selectedCountryId === c.id ? 'bg-primary-container/20' : 'active:bg-surface-container'
-                  }`}>
-                  <Text className={`text-[16px] ${selectedCountryId === c.id ? 'font-bold text-primary' : 'text-on-surface'}`}>
-                    {c.name}
-                  </Text>
-                  {selectedCountryId === c.id ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
-                </Pressable>
-              ))}
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <CountryPickerModal
+        visible={showCountryModal}
+        onClose={() => setShowCountryModal(false)}
+        countries={countries}
+        selectedCountryId={selectedCountryId}
+        onSelectCountry={setSelectedCountryId}
+      />
     </SafeAreaView>
   );
 }
+

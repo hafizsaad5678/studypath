@@ -1,11 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppHeader } from '@/components/layout/app-header';
-import { usePrograms, useProgramsByIds } from '@/hooks/usePrograms';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { usePrograms } from '@/hooks/usePrograms';
+import { formatTuition } from '@/lib/formatters';
 import type { ProgramWithUniversity } from '@/types/database';
 
 type Row = { label: string; values: React.ReactNode[] };
@@ -27,47 +31,50 @@ function ValueBlock({
   );
 }
 
-function formatTuition(p: ProgramWithUniversity) {
-  if (p.tuition_amount == null) return 'N/A';
-  return `${p.tuition_currency ?? ''} ${p.tuition_amount}`;
-}
-
 export default function CompareScreen() {
-  // The current UI navigates here without passing which two programs to compare yet.
-  // If a caller starts passing `ids` (comma-separated program ids) as a route param,
-  // use those; otherwise fall back to the first two programs available as a stand-in.
   const params = useLocalSearchParams<{ ids?: string }>();
-  const idsFromParams = params.ids ? params.ids.split(',').filter(Boolean) : [];
+  const { data: allPrograms, isLoading } = usePrograms();
 
-  const byIdsQuery = useProgramsByIds(idsFromParams);
-  const fallbackQuery = usePrograms();
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
+    if (params.ids) {
+      return params.ids.split(',').filter(Boolean).slice(0, 2);
+    }
+    return [];
+  });
 
-  const isLoading = idsFromParams.length > 0 ? byIdsQuery.isLoading : fallbackQuery.isLoading;
-  const source = idsFromParams.length > 0 ? byIdsQuery.data : fallbackQuery.data?.slice(0, 2);
-  const programs = source ?? [];
+  const [pickerSlot, setPickerSlot] = useState<0 | 1 | null>(null);
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-background" edges={['top']}>
-        <ActivityIndicator />
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <AppHeader variant="detail" title="Compare Programs" />
+        <LoadingState message="Loading programs..." />
       </SafeAreaView>
     );
   }
 
-  if (programs.length < 2) {
+  const progList = allPrograms ?? [];
+
+  // If user hasn't selected 2 programs yet, initialize them if available
+  const firstId = selectedIds[0] ?? progList[0]?.id;
+  const secondId = selectedIds[1] ?? (progList.find((p) => p.id !== firstId)?.id ?? progList[1]?.id);
+
+  const a = progList.find((p) => p.id === firstId);
+  const b = progList.find((p) => p.id === secondId);
+
+  if (!a || !b) {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <AppHeader variant="detail" title="Compare Programs" />
-        <View className="flex-1 items-center justify-center px-margin-mobile">
-          <Text className="text-center text-[16px] text-on-surface-variant">
-            Not enough programs available to compare yet.
-          </Text>
-        </View>
+        <EmptyState
+          title="Not enough programs to compare"
+          description="We need at least two programs available in the catalog to perform a comparison."
+          actionLabel="Explore Programs"
+          onAction={() => router.push('/(tabs)/explore')}
+        />
       </SafeAreaView>
     );
   }
-
-  const [a, b] = programs;
 
   const rows: Row[] = [
     {
@@ -88,8 +95,12 @@ export default function CompareScreen() {
     {
       label: 'Tuition (Yearly)',
       values: [
-        <Text key="a" className="text-[16px] font-bold text-on-surface">{formatTuition(a)}</Text>,
-        <Text key="b" className="text-[16px] font-bold text-on-surface">{formatTuition(b)}</Text>,
+        <Text key="a" className="text-[16px] font-bold text-on-surface">
+          {formatTuition(a.tuition_amount, undefined, a.tuition_currency)}
+        </Text>,
+        <Text key="b" className="text-[16px] font-bold text-on-surface">
+          {formatTuition(b.tuition_amount, undefined, b.tuition_currency)}
+        </Text>,
       ],
     },
     {
@@ -145,25 +156,37 @@ export default function CompareScreen() {
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         <Text className="mb-2 text-[26px] font-bold text-on-surface">Compare Programs</Text>
         <Text className="mb-stack-lg text-[16px] text-on-surface-variant">
-          Evaluate top academic paths to make an informed decision for your future.
+          Tap Change Program to select any two programs from the catalog.
         </Text>
 
-        {/* Program cards (stacked, side headers) */}
+        {/* Program cards with Change Program action */}
         <View className="mb-stack-lg flex-row gap-stack-md">
-          {[a, b].map((p) => (
-            <View key={p.id} className="flex-1 overflow-hidden rounded-xl border border-outline-variant bg-surface-bright">
+          {[a, b].map((p, idx) => (
+            <View
+              key={p.id}
+              className="flex-1 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
               <View className="p-stack-sm">
                 <View className="mb-2 h-20 w-full overflow-hidden rounded-lg bg-surface-variant">
                   {p.university?.image_url ? (
-                    <Image source={{ uri: p.university.image_url }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                    <Image
+                      source={{ uri: p.university.image_url }}
+                      style={{ width: '100%', height: '100%' }}
+                      contentFit="cover"
+                    />
                   ) : null}
                 </View>
-                <Text className="mb-1 text-[11px] font-bold text-primary">{p.university?.name ?? ''}</Text>
-                <Text className="text-[15px] font-semibold text-on-surface">{p.name}</Text>
+                <Text className="mb-1 text-[11px] font-bold text-primary" numberOfLines={1}>
+                  {p.university?.name ?? ''}
+                </Text>
+                <Text className="text-[14px] font-semibold text-on-surface" numberOfLines={2}>
+                  {p.name}
+                </Text>
                 <Pressable
-                  onPress={() => router.push({ pathname: '/program/[id]', params: { id: p.id } })}
-                  className="mt-2 items-center rounded-lg border border-outline-variant bg-surface-container py-2">
-                  <Text className="text-[12px] font-semibold text-on-surface">View Details</Text>
+                  onPress={() => setPickerSlot(idx as 0 | 1)}
+                  className="mt-3 items-center rounded-lg bg-secondary-container py-2 active:opacity-80">
+                  <Text className="text-[12px] font-semibold text-on-secondary-container">
+                    Change Program
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -175,8 +198,8 @@ export default function CompareScreen() {
           {rows.map((row, i) => (
             <View
               key={row.label}
-              className={`p-stack-md ${i < rows.length - 1 ? 'border-b border-outline-variant' : ''} ${
-                i % 2 === 1 ? 'bg-surface-container-lowest' : ''
+              className={`p-stack-md ${
+                i < rows.length - 1 ? 'border-b border-outline-variant' : ''
               }`}>
               <Text className="mb-stack-sm text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 {row.label}
@@ -189,6 +212,54 @@ export default function CompareScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* Program Selector Modal */}
+      <Modal
+        visible={pickerSlot !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPickerSlot(null)}>
+        <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setPickerSlot(null)}>
+          <Pressable
+            className="max-h-[70%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6"
+            onPress={(e) => e.stopPropagation?.()}>
+            <View className="mb-4 flex-row items-center justify-between">
+              <Text className="text-[18px] font-bold text-on-surface">Select Program</Text>
+              <Pressable onPress={() => setPickerSlot(null)} hitSlop={8}>
+                <MaterialIcons name="close" size={22} color="#bacbb9" />
+              </Pressable>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {progList.map((item) => {
+                const isCurrent = (pickerSlot === 0 ? a.id : b.id) === item.id;
+                return (
+                  <Pressable
+                    key={item.id}
+                    onPress={() => {
+                      if (pickerSlot === 0) {
+                        setSelectedIds([item.id, secondId]);
+                      } else if (pickerSlot === 1) {
+                        setSelectedIds([firstId, item.id]);
+                      }
+                      setPickerSlot(null);
+                    }}
+                    className={`mb-2 rounded-xl border p-4 ${
+                      isCurrent
+                        ? 'border-primary bg-primary-container/20'
+                        : 'border-outline-variant active:bg-surface-container'
+                    }`}>
+                    <Text className="text-[15px] font-semibold text-on-surface">{item.name}</Text>
+                    <Text className="text-[13px] text-on-surface-variant">
+                      {item.university?.name} • {item.degree_level}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
+

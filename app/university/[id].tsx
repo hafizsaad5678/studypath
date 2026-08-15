@@ -9,6 +9,10 @@ import { useSavedItems } from '@/hooks/useSavedItems';
 import { useUniversityById } from '@/hooks/useUniversities';
 import { useProgramsByUniversity } from '@/hooks/usePrograms';
 
+import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { formatTuition } from '@/lib/formatters';
+
 export default function UniversityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: university, isLoading, isError } = useUniversityById(id ?? '');
@@ -19,9 +23,7 @@ export default function UniversityDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <AppHeader variant="detail" title="Loading University..." />
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#75ff9e" />
-        </View>
+        <LoadingState message="Loading university details..." />
       </SafeAreaView>
     );
   }
@@ -30,9 +32,7 @@ export default function UniversityDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <AppHeader variant="detail" title="University Details" />
-        <View className="flex-1 items-center justify-center px-margin-mobile">
-          <Text className="text-center text-[16px] text-on-surface-variant">University not found.</Text>
-        </View>
+        <ErrorState message="University not found." onRetry={() => router.back()} />
       </SafeAreaView>
     );
   }

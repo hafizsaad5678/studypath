@@ -7,10 +7,32 @@ import { AppHeader } from '@/components/layout/app-header';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useProgram } from '@/hooks/usePrograms';
 
+import { useApplications, useCreateApplication } from '@/hooks/useApplications';
+import { useAuth } from '@/hooks/useAuth';
+import { formatTuition } from '@/lib/formatters';
+
 export default function ProgramDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: program, isLoading, isError } = useProgram(id ?? '');
   const { isSaved, toggle } = useSavedItems();
+  const { session } = useAuth();
+  const { data: userApplications } = useApplications();
+  const createApplicationMutation = useCreateApplication();
+
+  const existingApp = (userApplications ?? []).find((a) => a.program_id === id);
+
+  const handleApply = async () => {
+    if (!session) {
+      router.push('/(auth)/login');
+      return;
+    }
+    if (!id || existingApp) return;
+    try {
+      await createApplicationMutation.mutateAsync(id);
+    } catch (e) {
+      console.error('Failed to create application:', e);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -42,10 +64,7 @@ export default function ProgramDetailScreen() {
     {
       icon: 'payments' as const,
       label: 'Tuition',
-      value:
-        program.tuition_amount != null
-          ? `${program.tuition_currency ?? ''} ${program.tuition_amount} / year`
-          : 'N/A',
+      value: formatTuition(program.tuition_amount, undefined, program.tuition_currency),
     },
     { icon: 'calendar-month' as const, label: 'Language', value: program.language ?? 'N/A' },
   ];
@@ -83,14 +102,41 @@ export default function ProgramDetailScreen() {
         <Text className="mb-1 text-[26px] font-bold text-on-surface">{program.name}</Text>
         <Text className="mb-stack-md text-[18px] font-semibold text-primary">{university?.name ?? ''}</Text>
 
-        {university?.website_url ? (
-          <Pressable
-            onPress={() => Linking.openURL(university.website_url!)}
-            className="mb-stack-lg flex-row items-center justify-center gap-2 rounded-lg bg-primary-container px-5 py-3">
-            <Text className="text-[14px] font-semibold text-on-primary-container">Visit Official Application</Text>
-            <MaterialIcons name="open-in-new" size={18} color="#00612e" />
-          </Pressable>
-        ) : null}
+        <View className="mb-stack-lg gap-2">
+          {existingApp ? (
+            <Pressable
+              onPress={() => router.push('/applications')}
+              className="flex-row items-center justify-center gap-2 rounded-lg border border-primary bg-primary-container/20 px-5 py-3">
+              <MaterialIcons name="check-circle" size={18} color="#75ff9e" />
+              <Text className="text-[14px] font-semibold text-primary">
+                In Applications ({existingApp.status.toUpperCase()})
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              disabled={createApplicationMutation.isPending}
+              onPress={handleApply}
+              className="flex-row items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 active:opacity-90">
+              {createApplicationMutation.isPending ? (
+                <ActivityIndicator color="#003919" size="small" />
+              ) : (
+                <>
+                  <MaterialIcons name="add-task" size={18} color="#003919" />
+                  <Text className="text-[14px] font-bold text-on-primary">Add to My Applications</Text>
+                </>
+              )}
+            </Pressable>
+          )}
+
+          {university?.website_url ? (
+            <Pressable
+              onPress={() => Linking.openURL(university.website_url!)}
+              className="flex-row items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 py-3">
+              <Text className="text-[14px] font-semibold text-on-surface">Visit Official Website</Text>
+              <MaterialIcons name="open-in-new" size={18} color="#bacbb9" />
+            </Pressable>
+          ) : null}
+        </View>
 
         {/* Key Facts */}
         <View className="mb-stack-md rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-md">
