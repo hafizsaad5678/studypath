@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { supabase } from '@/lib/supabase';
 import type { Scholarship, University } from '@/types/database';
@@ -90,15 +91,7 @@ export default function SavedScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="flex-row items-center border-b border-outline-variant bg-surface-container-lowest px-margin-mobile py-3">
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-          <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-        </Pressable>
-        <Text className="text-[18px] font-bold text-primary">Saved Items</Text>
-      </View>
+      <AppHeader variant="detail" title="Saved Items" />
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         {isLoading ? (

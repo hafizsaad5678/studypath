@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
+import { useAuth } from '@/hooks/useAuth';
 import { useDeadlines } from '@/hooks/useDeadlines';
 import { useCountries } from '@/hooks/useCountries';
 import { useScholarships } from '@/hooks/useScholarships';
@@ -58,20 +60,22 @@ export default function LandingScreen() {
   const { data: deadlines } = useDeadlines(1);
   const featuredScholarship = scholarships?.[0];
   const nextDeadline = deadlines?.[0];
+  const { session } = useAuth();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
-        <View className="flex-row items-center gap-2">
-          <MaterialIcons name="school" size={22} color="#75ff9e" />
-          <Text className="text-[20px] font-bold text-primary">StudyPath</Text>
-        </View>
-        <Link href="/(auth)/login" asChild>
-          <Pressable className="rounded-lg bg-primary-container px-4 py-2">
-            <Text className="text-[14px] font-semibold text-on-primary-container">Sign In</Text>
-          </Pressable>
-        </Link>
-      </View>
+      <AppHeader
+        variant="brand"
+        right={
+          session ? undefined : (
+            <Link href="/(auth)/login" asChild>
+              <Pressable className="rounded-lg bg-primary-container px-4 py-2">
+                <Text className="text-[14px] font-semibold text-on-primary-container">Sign In</Text>
+              </Pressable>
+            </Link>
+          )
+        }
+      />
 
       <ScrollView contentContainerClassName="pb-8" showsVerticalScrollIndicator={false}>
         <View className="items-center px-margin-mobile pb-8 pt-10">

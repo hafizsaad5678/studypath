@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeadlines } from '@/hooks/useDeadlines';
 import { useSavedItems } from '@/hooks/useSavedItems';
@@ -65,8 +66,17 @@ function DeadlineItem({ item }: { item: DeadlineWithRelations }) {
 }
 
 function QuickActionButton({ item }: { item: QuickAction }) {
+  const handlePress = () => {
+    if (item.id === '1') router.push('/(tabs)/explore');
+    else if (item.id === '2') router.push('/(tabs)/scholarships');
+    else if (item.id === '3') router.push('/(tabs)/deadlines');
+    else if (item.id === '4') router.push('/compare');
+  };
+
   return (
-    <Pressable className="w-[47%] items-center justify-center gap-3 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+    <Pressable
+      onPress={handlePress}
+      className="w-[47%] items-center justify-center gap-3 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 active:bg-surface-container-high">
       <View className="h-12 w-12 items-center justify-center rounded-full bg-secondary-container">
         <MaterialIcons name={item.icon} size={22} color="#75ff9e" />
       </View>
@@ -136,15 +146,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
-        <View className="flex-row items-center gap-2">
-          <MaterialIcons name="school" size={22} color="#75ff9e" />
-          <Text className="text-[20px] font-bold text-primary">StudyPath</Text>
-        </View>
-        <Pressable className="rounded-full p-2">
-          <MaterialIcons name="notifications" size={22} color="#bacbb9" />
-        </Pressable>
-      </View>
+      <AppHeader variant="brand" />
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-6" showsVerticalScrollIndicator={false}>
         <View className="mb-8">
@@ -166,7 +168,9 @@ export default function HomeScreen() {
           <View className="mb-4 h-2 w-full rounded-full bg-surface-container-high">
             <View className="h-2 rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
           </View>
-          <Pressable className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-primary-container px-4 py-3">
+          <Pressable
+            onPress={() => router.push('/(auth)/profile-setup')}
+            className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-primary-container px-4 py-3 active:opacity-90">
             <Text className="text-[14px] font-semibold text-on-primary-container">Complete Profile</Text>
             <MaterialIcons name="arrow-forward" size={16} color="#00612e" />
           </Pressable>

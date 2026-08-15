@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { usePrograms, useProgramsByIds } from '@/hooks/usePrograms';
 import type { ProgramWithUniversity } from '@/types/database';
 
@@ -56,12 +57,7 @@ export default function CompareScreen() {
   if (programs.length < 2) {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-        <View className="flex-row items-center border-b border-outline-variant bg-surface-container-lowest px-margin-mobile py-3">
-          <Pressable onPress={() => router.back()} hitSlop={8} className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-            <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-          </Pressable>
-          <Text className="text-[18px] font-bold text-primary">StudyPath</Text>
-        </View>
+        <AppHeader variant="detail" title="Compare Programs" />
         <View className="flex-1 items-center justify-center px-margin-mobile">
           <Text className="text-center text-[16px] text-on-surface-variant">
             Not enough programs available to compare yet.
@@ -144,12 +140,7 @@ export default function CompareScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="flex-row items-center border-b border-outline-variant bg-surface-container-lowest px-margin-mobile py-3">
-        <Pressable onPress={() => router.back()} hitSlop={8} className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-          <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-        </Pressable>
-        <Text className="text-[18px] font-bold text-primary">StudyPath</Text>
-      </View>
+      <AppHeader variant="detail" title="Compare Programs" />
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         <Text className="mb-2 text-[26px] font-bold text-on-surface">Compare Programs</Text>

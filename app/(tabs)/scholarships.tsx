@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useScholarships } from '@/hooks/useScholarships';
 import type { ScholarshipWithRelations } from '@/types/database';
@@ -131,14 +132,30 @@ function ScholarshipCard({ item }: { item: ScholarshipWithRelations }) {
   );
 }
 
+import { useCountries } from '@/hooks/useCountries';
+import type { FundingType } from '@/types/database';
+import { Modal } from 'react-native';
+
 export default function ScholarshipsScreen() {
   const [search, setSearch] = useState('');
-  const { data: scholarships, isLoading } = useScholarships(search ? { search } : undefined);
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
+  const [fullyFundedOnly, setFullyFundedOnly] = useState(false);
+  const [showCountryModal, setShowCountryModal] = useState(false);
+
+  const { data: countries } = useCountries();
+
+  const { data: scholarships, isLoading } = useScholarships({
+    search: search || undefined,
+    countryId: selectedCountryId ?? undefined,
+    fundingType: fullyFundedOnly ? 'full' : undefined,
+  });
 
   const list = useMemo(() => scholarships ?? [], [scholarships]);
+  const selectedCountry = countries?.find((c) => c.id === selectedCountryId);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AppHeader variant="brand" />
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         <Text className="mb-2 text-[28px] font-bold text-on-surface">Scholarships Discovery</Text>
         <Text className="mb-stack-lg text-[16px] text-on-surface-variant">
@@ -157,24 +174,53 @@ export default function ScholarshipsScreen() {
         </View>
 
         <View className="mb-stack-lg flex-row flex-wrap gap-stack-sm">
-          <FilterPill icon="public" label="Country" value={COUNTRIES[0]} />
-          <FilterPill icon="school" label="Degree" value={DEGREES[0]} />
+          <Pressable
+            onPress={() => setShowCountryModal(true)}
+            className="flex-1 min-w-[45%] rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-md gap-stack-sm active:bg-surface-container-high">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-1">
+                <MaterialIcons name="public" size={16} color="#e2e2e2" />
+                <Text className="text-[14px] font-semibold text-on-surface">Country</Text>
+              </View>
+              {selectedCountryId ? (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation?.();
+                    setSelectedCountryId(null);
+                  }}
+                  hitSlop={8}>
+                  <MaterialIcons name="close" size={16} color="#00612e" />
+                </Pressable>
+              ) : (
+                <MaterialIcons name="expand-more" size={16} color="#bacbb9" />
+              )}
+            </View>
+            <View className="rounded-lg border border-outline-variant bg-surface-container-low px-2 py-2">
+              <Text className="text-[14px] text-on-surface" numberOfLines={1}>
+                {selectedCountry ? selectedCountry.name : 'Any Country'}
+              </Text>
+            </View>
+          </Pressable>
         </View>
 
-        <View className="mb-stack-lg flex-row items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-md">
+        <Pressable
+          onPress={() => setFullyFundedOnly((prev) => !prev)}
+          className="mb-stack-lg flex-row items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-md active:bg-surface-container-high">
           <View className="flex-row items-center gap-2">
             <MaterialIcons name="monetization-on" size={18} color="#e2e2e2" />
             <Text className="text-[14px] font-semibold text-on-surface">Fully Funded Only</Text>
           </View>
-          <MaterialIcons name="check-box" size={22} color="#75ff9e" />
-        </View>
+          <MaterialIcons
+            name={fullyFundedOnly ? 'check-box' : 'check-box-outline-blank'}
+            size={22}
+            color={fullyFundedOnly ? '#75ff9e' : '#bacbb9'}
+          />
+        </Pressable>
 
         <View className="mb-stack-lg flex-row items-center justify-between">
-          <Text className="text-[14px] font-semibold text-on-surface">Sort By</Text>
-          <Pressable className="flex-row items-center gap-1">
-            <Text className="text-[14px] font-semibold text-primary">Deadline (Upcoming)</Text>
-            <MaterialIcons name="arrow-drop-down" size={18} color="#75ff9e" />
-          </Pressable>
+          <Text className="text-[14px] font-semibold text-on-surface">
+            {isLoading ? 'Loading...' : `${list.length} Scholarships`}
+          </Text>
         </View>
 
         {isLoading ? (
@@ -187,6 +233,50 @@ export default function ScholarshipsScreen() {
           list.map((s) => <ScholarshipCard key={s.id} item={s} />)
         )}
       </ScrollView>
+
+      <Modal visible={showCountryModal} transparent animationType="fade" onRequestClose={() => setShowCountryModal(false)}>
+        <Pressable className="flex-1 bg-black/60 justify-end" onPress={() => setShowCountryModal(false)}>
+          <Pressable className="max-h-[70%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6" onPress={(e) => e.stopPropagation?.()}>
+            <View className="mb-4 flex-row items-center justify-between">
+              <Text className="text-[18px] font-bold text-on-surface">Select Country</Text>
+              <Pressable onPress={() => setShowCountryModal(false)} hitSlop={8}>
+                <MaterialIcons name="close" size={22} color="#bacbb9" />
+              </Pressable>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Pressable
+                onPress={() => {
+                  setSelectedCountryId(null);
+                  setShowCountryModal(false);
+                }}
+                className={`flex-row items-center justify-between rounded-xl p-4 ${
+                  !selectedCountryId ? 'bg-primary-container/20' : 'active:bg-surface-container'
+                }`}>
+                <Text className={`text-[16px] ${!selectedCountryId ? 'font-bold text-primary' : 'text-on-surface'}`}>
+                  All Countries
+                </Text>
+                {!selectedCountryId ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
+              </Pressable>
+              {(countries ?? []).map((c) => (
+                <Pressable
+                  key={c.id}
+                  onPress={() => {
+                    setSelectedCountryId(c.id);
+                    setShowCountryModal(false);
+                  }}
+                  className={`flex-row items-center justify-between rounded-xl p-4 ${
+                    selectedCountryId === c.id ? 'bg-primary-container/20' : 'active:bg-surface-container'
+                  }`}>
+                  <Text className={`text-[16px] ${selectedCountryId === c.id ? 'font-bold text-primary' : 'text-on-surface'}`}>
+                    {c.name}
+                  </Text>
+                  {selectedCountryId === c.id ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
+                </Pressable>
+              ))}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader, NotificationBell } from '@/components/layout/app-header';
 import { useScrapingJobStats, useScrapingJobs } from '@/hooks/useDataSources';
 import type { ScrapingJobWithSource } from '@/types/database';
 
@@ -165,15 +166,7 @@ export default function DataSourcesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
-        <Pressable onPress={() => router.back()} hitSlop={8} className="h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-          <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-        </Pressable>
-        <Text className="text-[20px] font-bold text-primary">Data Sources</Text>
-        <View className="h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-          <MaterialIcons name="notifications" size={20} color="#75ff9e" />
-        </View>
-      </View>
+      <AppHeader variant="detail" title="Data Sources" right={<NotificationBell />} />
 
       <ScrollView contentContainerClassName="gap-stack-lg px-margin-mobile py-stack-lg">
         <View className="gap-2">

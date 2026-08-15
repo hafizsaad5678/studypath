@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { useCountry } from '@/hooks/useCountries';
 import { useUniversitiesByCountry } from '@/hooks/useUniversities';
 
@@ -63,28 +64,29 @@ export default function CountryDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-background" edges={['top']}>
-        <ActivityIndicator />
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <AppHeader variant="detail" title="Loading Country..." />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color="#75ff9e" />
+        </View>
       </SafeAreaView>
     );
   }
 
   if (isError || !country) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-background" edges={['top']}>
-        <Text className="text-[16px] text-on-surface-variant">Country not found.</Text>
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <AppHeader variant="detail" title="Country Details" />
+        <View className="flex-1 items-center justify-center px-margin-mobile">
+          <Text className="text-center text-[16px] text-on-surface-variant">Country not found.</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="flex-row items-center border-b border-outline-variant bg-surface-container-lowest px-margin-mobile py-3">
-        <Pressable onPress={() => router.back()} hitSlop={8} className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-          <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-        </Pressable>
-        <Text className="text-[18px] font-bold text-primary">StudyPath</Text>
-      </View>
+      <AppHeader variant="detail" title={country.name} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="h-56 w-full bg-surface-container-high">

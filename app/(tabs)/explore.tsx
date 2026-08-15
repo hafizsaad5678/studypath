@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import type { DegreeLevel, ProgramWithUniversity } from '@/types/database';
@@ -87,27 +88,32 @@ function ProgramCardView({
   );
 }
 
+import { useLocalSearchParams } from 'expo-router';
+import { useCountries } from '@/hooks/useCountries';
+
 export default function ExploreScreen() {
-  const [search, setSearch] = useState('');
-  const [degreeLevel, setDegreeLevel] = useState<DegreeLevel | null>(null);
+  const params = useLocalSearchParams<{ degree?: string; countryId?: string; search?: string }>();
+  const [search, setSearch] = useState(params.search ?? '');
+  const [degreeLevel, setDegreeLevel] = useState<DegreeLevel | null>(
+    (params.degree as DegreeLevel) ?? null
+  );
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(params.countryId ?? null);
+  const [showCountryModal, setShowCountryModal] = useState(false);
+
+  const { data: countries } = useCountries();
 
   const { data: programs, isLoading, isError } = usePrograms({
     search: search || undefined,
     degreeLevel: degreeLevel ?? undefined,
+    countryId: selectedCountryId ?? undefined,
   });
   const { isSaved, toggle } = useSavedItems();
 
+  const selectedCountry = countries?.find((c) => c.id === selectedCountryId);
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
-        <View className="flex-row items-center gap-2">
-          <MaterialIcons name="school" size={22} color="#75ff9e" />
-          <Text className="text-[20px] font-bold text-primary">StudyPath</Text>
-        </View>
-        <Pressable className="rounded-full p-2">
-          <MaterialIcons name="notifications" size={22} color="#bacbb9" />
-        </Pressable>
-      </View>
+      <AppHeader variant="brand" />
 
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         <View className="relative mb-4">
@@ -147,14 +153,33 @@ export default function ExploreScreen() {
               </Text>
             </Pressable>
           ))}
-          {filterChips.map((chip) => (
-            <Pressable
-              key={chip}
-              className="flex-row items-center gap-1 rounded-full border border-outline-variant bg-surface-container-lowest px-4 py-2">
-              <Text className="text-[14px] font-semibold text-on-surface">{chip}</Text>
+          
+          <Pressable
+            onPress={() => setShowCountryModal(true)}
+            className={`flex-row items-center gap-1 rounded-full border px-4 py-2 ${
+              selectedCountryId
+                ? 'border-primary bg-primary-container'
+                : 'border-outline-variant bg-surface-container-lowest'
+            }`}>
+            <Text
+              className={`text-[14px] font-semibold ${
+                selectedCountryId ? 'text-on-primary-container' : 'text-on-surface'
+              }`}>
+              {selectedCountry ? selectedCountry.name : 'Country'}
+            </Text>
+            {selectedCountryId ? (
+              <Pressable
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  setSelectedCountryId(null);
+                }}
+                hitSlop={8}>
+                <MaterialIcons name="close" size={16} color="#00612e" />
+              </Pressable>
+            ) : (
               <MaterialIcons name="expand-more" size={16} color="#e2e2e2" />
-            </Pressable>
-          ))}
+            )}
+          </Pressable>
         </ScrollView>
 
         <View className="mb-4 mt-2 flex-row items-center justify-between">
@@ -186,6 +211,50 @@ export default function ExploreScreen() {
           </View>
         )}
       </ScrollView>
+
+      <Modal visible={showCountryModal} transparent animationType="fade" onRequestClose={() => setShowCountryModal(false)}>
+        <Pressable className="flex-1 bg-black/60 justify-end" onPress={() => setShowCountryModal(false)}>
+          <Pressable className="max-h-[70%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6" onPress={(e) => e.stopPropagation?.()}>
+            <View className="mb-4 flex-row items-center justify-between">
+              <Text className="text-[18px] font-bold text-on-surface">Select Country</Text>
+              <Pressable onPress={() => setShowCountryModal(false)} hitSlop={8}>
+                <MaterialIcons name="close" size={22} color="#bacbb9" />
+              </Pressable>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Pressable
+                onPress={() => {
+                  setSelectedCountryId(null);
+                  setShowCountryModal(false);
+                }}
+                className={`flex-row items-center justify-between rounded-xl p-4 ${
+                  !selectedCountryId ? 'bg-primary-container/20' : 'active:bg-surface-container'
+                }`}>
+                <Text className={`text-[16px] ${!selectedCountryId ? 'font-bold text-primary' : 'text-on-surface'}`}>
+                  All Countries
+                </Text>
+                {!selectedCountryId ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
+              </Pressable>
+              {(countries ?? []).map((c) => (
+                <Pressable
+                  key={c.id}
+                  onPress={() => {
+                    setSelectedCountryId(c.id);
+                    setShowCountryModal(false);
+                  }}
+                  className={`flex-row items-center justify-between rounded-xl p-4 ${
+                    selectedCountryId === c.id ? 'bg-primary-container/20' : 'active:bg-surface-container'
+                  }`}>
+                  <Text className={`text-[16px] ${selectedCountryId === c.id ? 'font-bold text-primary' : 'text-on-surface'}`}>
+                    {c.name}
+                  </Text>
+                  {selectedCountryId === c.id ? <MaterialIcons name="check" size={20} color="#75ff9e" /> : null}
+                </Pressable>
+              ))}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

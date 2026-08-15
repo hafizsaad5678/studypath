@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/auth-button';
+import { AppHeader } from '@/components/layout/app-header';
 import { useAuth } from '@/hooks/useAuth';
 import { updateProfile } from '@/services/auth';
 
@@ -84,18 +85,17 @@ export default function ProfileSetupScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="h-16 w-full flex-row items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-margin-mobile">
-        <View className="flex-row items-center gap-2">
-          <MaterialIcons name="school" size={22} color="#75ff9e" />
-          <Text className="text-[20px] font-bold text-primary">StudyPath</Text>
-        </View>
-        <View className="flex-row items-center gap-4">
-          <Text className="text-[14px] font-semibold text-on-surface-variant">Step 1 of 5</Text>
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <MaterialIcons name="close" size={22} color="#bacbb9" />
-          </Pressable>
-        </View>
-      </View>
+      <AppHeader
+        variant="brand"
+        right={
+          <View className="flex-row items-center gap-4">
+            <Text className="text-[14px] font-semibold text-on-surface-variant">Step 1 of 5</Text>
+            <Pressable onPress={() => router.back()} hitSlop={8}>
+              <MaterialIcons name="close" size={22} color="#bacbb9" />
+            </Pressable>
+          </View>
+        }
+      />
 
       <ScrollView
         contentContainerClassName="flex-grow items-center justify-center px-margin-mobile py-stack-lg"

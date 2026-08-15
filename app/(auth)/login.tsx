@@ -1,4 +1,3 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
@@ -6,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/auth-button';
 import { TextField } from '@/components/auth/text-field';
+import { AppHeader } from '@/components/layout/app-header';
 import { signIn } from '@/services/auth';
 
 export default function LoginScreen() {
@@ -39,9 +39,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerClassName="flex-grow px-margin-mobile pb-8 pt-4"
           keyboardShouldPersistTaps="handled">
-          <Pressable onPress={() => router.back()} hitSlop={8} className="mb-6 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-            <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-          </Pressable>
+          <AppHeader variant="detail" bare />
 
           <Text className="mb-2 text-[28px] font-bold text-on-surface">Welcome back</Text>
           <Text className="mb-stack-lg text-[16px] text-on-surface-variant">

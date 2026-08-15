@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/auth-button';
 import { TextField } from '@/components/auth/text-field';
+import { AppHeader } from '@/components/layout/app-header';
 import { sendPasswordResetEmail } from '@/services/auth';
 
 export default function ResetPasswordScreen() {
@@ -39,9 +40,7 @@ export default function ResetPasswordScreen() {
         <ScrollView
           contentContainerClassName="flex-grow px-margin-mobile pb-8 pt-4"
           keyboardShouldPersistTaps="handled">
-          <Pressable onPress={() => router.back()} hitSlop={8} className="mb-6 h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
-            <MaterialIcons name="arrow-back" size={20} color="#e2e2e2" />
-          </Pressable>
+          <AppHeader variant="detail" bare />
 
           {sent ? (
             <View className="flex-1 items-center justify-center gap-stack-md pt-16">

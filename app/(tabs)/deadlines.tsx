@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppHeader } from '@/components/layout/app-header';
 import { useDeadlines } from '@/hooks/useDeadlines';
 import type { DeadlineWithRelations } from '@/types/database';
 
@@ -99,6 +100,7 @@ export default function DeadlinesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AppHeader variant="brand" />
       <ScrollView contentContainerClassName="px-margin-mobile pb-8 pt-4" showsVerticalScrollIndicator={false}>
         <Text className="mb-2 text-[28px] font-bold text-on-surface">Deadlines</Text>
         <Text className="mb-stack-lg text-[16px] text-on-surface-variant">
