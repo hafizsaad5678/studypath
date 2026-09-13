@@ -17,13 +17,19 @@ export default function ResetPasswordScreen() {
 
   const handleReset = async () => {
     setError(null);
-    if (!email) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setError('Enter your email address.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Please enter a valid email address.');
       return;
     }
     setLoading(true);
     try {
-      await sendPasswordResetEmail(email.trim());
+      await sendPasswordResetEmail(trimmedEmail);
       setSent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send the reset link. Please try again.');

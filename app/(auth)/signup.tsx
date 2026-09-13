@@ -17,8 +17,15 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     setError(null);
-    if (!name || !email || !password) {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    if (!trimmedName || !trimmedEmail || !password) {
       setError('Fill in your name, email, and password.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Please enter a valid email address.');
       return;
     }
     if (password.length < 8) {
@@ -27,7 +34,7 @@ export default function SignupScreen() {
     }
     setLoading(true);
     try {
-      await signUp(email.trim(), password, name.trim());
+      await signUp(trimmedEmail, password, trimmedName);
       router.replace('/(auth)/profile-setup');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not create your account. Please try again.');
