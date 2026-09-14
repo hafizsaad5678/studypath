@@ -1,50 +1,81 @@
-# Welcome to your Expo app 👋
+# StudyPath 🎓
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+StudyPath is a comprehensive study abroad consultancy and university discovery mobile application built with **React Native**, **Expo Router**, **NativeWind (Tailwind CSS)**, and **Supabase**.
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- **Global University Discovery**: Browse top universities, filter by countries, and view global rankings.
+- **Academic Programs**: Detailed program specs, duration, yearly tuition, and requirements.
+- **Scholarship Finder**: Explore fully-funded and partially-funded scholarships with upcoming application deadlines.
+- **Program Comparison**: Side-by-side comparison of tuition, duration, language, and next deadlines.
+- **Application Tracking**: Manage application status from draft, submitted, under review to accepted.
+- **User Authentication & Profile**: Supabase Auth with custom student profiles and onboarding flows.
+- **Admin Dashboard**: Data sources overview, scraping jobs monitoring, and catalog management.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Tech Stack
 
-In the output, you'll find options to open the app in a
+- **Framework**: [Expo](https://expo.dev) / React Native (SDK 52)
+- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based navigation)
+- **Styling**: [NativeWind](https://www.nativewind.dev/) (Tailwind CSS v3/v4)
+- **Icons**: `@expo/vector-icons` (MaterialIcons & SF Symbols)
+- **Backend & Database**: [Supabase](https://supabase.com) (PostgreSQL, Auth, RLS)
+- **State & Data Fetching**: [TanStack Query (React Query)](https://tanstack.com/query)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🚀 Getting Started
 
-## Get a fresh project
+### 1. Prerequisites
+- Node.js (v18+) or Bun
+- Expo Go app on iOS/Android or an emulator
 
-When you're ready, run:
-
+### 2. Installation
 ```bash
-npm run reset-project
+npm install
+# or
+bun install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Environment Configuration
+Create a `.env` file in the project root:
+```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Learn more
+### 4. Running the Project
+```bash
+npx expo start
+```
+- Press `i` for iOS simulator.
+- Press `a` for Android emulator.
+- Press `w` for web preview.
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📁 Project Structure
 
-## Join the community
+```
+studypath/
+├── app/                 # Expo Router file-based screens & layouts
+│   ├── (auth)/          # Authentication flow (login, signup, setup)
+│   ├── (tabs)/          # Main tabs (explore, scholarships, deadlines, home)
+│   ├── admin/           # Admin management & data scraping logs
+│   ├── compare.tsx      # Side-by-side program comparison
+│   └── _layout.tsx      # Root providers & stack navigation
+├── components/          # Reusable UI components & layouts
+├── hooks/               # React Query data hooks
+├── lib/                 # Supabase client & utility formatters
+├── services/            # API & Supabase database queries
+└── types/               # TypeScript definitions
+```
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📄 License
+Private & Proprietary.
+
