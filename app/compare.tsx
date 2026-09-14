@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppHeader } from '@/components/layout/app-header';
@@ -43,6 +43,7 @@ export default function CompareScreen() {
   });
 
   const [pickerSlot, setPickerSlot] = useState<0 | 1 | null>(null);
+  const [modalSearch, setModalSearch] = useState('');
 
   if (isLoading) {
     return (
@@ -218,43 +219,85 @@ export default function CompareScreen() {
         visible={pickerSlot !== null}
         transparent
         animationType="fade"
-        onRequestClose={() => setPickerSlot(null)}>
-        <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setPickerSlot(null)}>
+        onRequestClose={() => {
+          setPickerSlot(null);
+          setModalSearch('');
+        }}>
+        <Pressable
+          className="flex-1 justify-end bg-black/60"
+          onPress={() => {
+            setPickerSlot(null);
+            setModalSearch('');
+          }}>
           <Pressable
-            className="max-h-[70%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6"
+            className="max-h-[75%] rounded-t-2xl border-t border-outline-variant bg-surface-container-lowest p-6"
             onPress={(e) => e.stopPropagation?.()}>
             <View className="mb-4 flex-row items-center justify-between">
               <Text className="text-[18px] font-bold text-on-surface">Select Program</Text>
-              <Pressable onPress={() => setPickerSlot(null)} hitSlop={8}>
+              <Pressable
+                onPress={() => {
+                  setPickerSlot(null);
+                  setModalSearch('');
+                }}
+                hitSlop={8}>
                 <MaterialIcons name="close" size={22} color="#bacbb9" />
               </Pressable>
             </View>
+
+            {/* Modal search bar */}
+            <View className="mb-3 flex-row items-center rounded-xl bg-surface-container px-3 py-2">
+              <MaterialIcons name="search" size={20} color="#859585" />
+              <TextInput
+                placeholder="Search by program or university..."
+                placeholderTextColor="#859585"
+                value={modalSearch}
+                onChangeText={setModalSearch}
+                className="ml-2 flex-1 text-[14px] text-on-surface"
+              />
+              {modalSearch ? (
+                <Pressable onPress={() => setModalSearch('')}>
+                  <MaterialIcons name="clear" size={18} color="#859585" />
+                </Pressable>
+              ) : null}
+            </View>
+
             <ScrollView showsVerticalScrollIndicator={false}>
-              {progList.map((item) => {
-                const isCurrent = (pickerSlot === 0 ? a.id : b.id) === item.id;
-                return (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => {
-                      if (pickerSlot === 0) {
-                        setSelectedIds([item.id, secondId]);
-                      } else if (pickerSlot === 1) {
-                        setSelectedIds([firstId, item.id]);
-                      }
-                      setPickerSlot(null);
-                    }}
-                    className={`mb-2 rounded-xl border p-4 ${
-                      isCurrent
-                        ? 'border-primary bg-primary-container/20'
-                        : 'border-outline-variant active:bg-surface-container'
-                    }`}>
-                    <Text className="text-[15px] font-semibold text-on-surface">{item.name}</Text>
-                    <Text className="text-[13px] text-on-surface-variant">
-                      {item.university?.name} • {item.degree_level}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+              {progList
+                .filter((item) => {
+                  if (!modalSearch.trim()) return true;
+                  const query = modalSearch.toLowerCase();
+                  return (
+                    item.name.toLowerCase().includes(query) ||
+                    (item.university?.name && item.university.name.toLowerCase().includes(query)) ||
+                    (item.field_of_study && item.field_of_study.toLowerCase().includes(query))
+                  );
+                })
+                .map((item) => {
+                  const isCurrent = (pickerSlot === 0 ? a.id : b.id) === item.id;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => {
+                        if (pickerSlot === 0) {
+                          setSelectedIds([item.id, secondId]);
+                        } else if (pickerSlot === 1) {
+                          setSelectedIds([firstId, item.id]);
+                        }
+                        setPickerSlot(null);
+                        setModalSearch('');
+                      }}
+                      className={`mb-2 rounded-xl border p-4 ${
+                        isCurrent
+                          ? 'border-primary bg-primary-container/20'
+                          : 'border-outline-variant active:bg-surface-container'
+                      }`}>
+                      <Text className="text-[15px] font-semibold text-on-surface">{item.name}</Text>
+                      <Text className="text-[13px] text-on-surface-variant">
+                        {item.university?.name} • {item.degree_level}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
             </ScrollView>
           </Pressable>
         </Pressable>
